@@ -6,11 +6,11 @@
   body {
     background-color: #fff0f3;
     color: #8b1a3a;
-    font-family: 'Lato', sans-serif;
+    @apply font-lato;
   }
   
   h1, h2, h3, h4, h5, h6 {
-    font-family: 'Cormorant Garamond', serif;
+    @apply font-cormorant;
   }
 }
 

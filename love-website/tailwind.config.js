@@ -7,8 +7,8 @@ export default {
   theme: {
     extend: {
       fontFamily: {
-        cormorant: ["'Cormorant Garamond'", "serif"],
-        lato: ["'Lato'", "sans-serif"],
+        cormorant: ["Cormorant Garamond", "serif"],
+        lato: ["Lato", "sans-serif"],
       },
       colors: {
         rose: {
@@ -25,7 +25,7 @@ export default {
         }
       },
       animation: {
-        fall: "fall var(--duration) linear infinite",
+        fall: "fall var(--duration, 12s) linear infinite",
         "pulse-down": "pulse-down 2s ease-in-out infinite",
       },
       keyframes: {
