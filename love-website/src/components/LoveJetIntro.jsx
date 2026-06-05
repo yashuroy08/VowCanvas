@@ -119,8 +119,11 @@ export default function LoveJetIntro({ onComplete }) {
     <AnimatePresence>
       {isVisible && (
         <motion.div
-          exit={{ opacity: 0 }}
-          transition={{ duration: 0.8, ease: 'easeInOut' }}
+          initial={{ clipPath: "inset(0% 0% 0% 0%)" }}
+          exit={{ 
+            clipPath: "inset(0% 0% 0% 100%)",
+            transition: { duration: 1.5, ease: [0.76, 0, 0.24, 1] } 
+          }}
           className="fixed inset-0 z-[100] bg-gradient-to-tr from-[#fff3f4] via-[#fff0f3] to-[#fff6f7] flex flex-col items-center justify-center overflow-hidden select-none pointer-events-auto"
         >
           {/* Ambient Floating Blur Orbs */}
@@ -180,6 +183,12 @@ export default function LoveJetIntro({ onComplete }) {
           <motion.div 
             initial={{ opacity: 0, scale: 0.95 }}
             animate={{ opacity: 1, scale: 1 }}
+            exit={{ 
+              x: -120, 
+              opacity: 0, 
+              filter: "blur(10px)",
+              transition: { duration: 0.8, ease: [0.76, 0, 0.24, 1] } 
+            }}
             transition={{ duration: 0.8 }}
             className="z-10 flex flex-col items-center gap-7"
           >
