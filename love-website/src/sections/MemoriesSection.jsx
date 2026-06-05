@@ -106,7 +106,7 @@ export default function MemoriesSection() {
         variants={containerVariants}
         initial="hidden"
         whileInView="visible"
-        viewport={{ once: true, margin: "-80px" }}
+        viewport={{ once: true }}
         className="grid grid-cols-1 md:grid-cols-2 gap-6"
       >
         {MEMORIES.map((mem, index) => (

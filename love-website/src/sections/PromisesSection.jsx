@@ -43,7 +43,7 @@ export default function PromisesSection() {
         variants={listVariants}
         initial="hidden"
         whileInView="visible"
-        viewport={{ once: true, margin: "-80px" }}
+        viewport={{ once: true }}
         className="flex flex-col"
       >
         {PROMISES.map((promise, index) => (

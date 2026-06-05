@@ -9,7 +9,7 @@ export default function LetterSection() {
       <motion.div
         initial={{ opacity: 0, y: 40 }}
         whileInView={{ opacity: 1, y: 0 }}
-        viewport={{ once: true, margin: "-80px" }}
+        viewport={{ once: true }}
         transition={{ duration: 0.8, ease: 'easeOut' }}
         className="relative bg-white/80 border border-pink-200/50 rounded-3xl p-8 md:p-14 shadow-sm mt-8 overflow-hidden"
       >
