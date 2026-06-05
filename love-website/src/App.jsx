@@ -1,3 +1,4 @@
+import { useState, useEffect } from 'react';
 import PetalRain from './components/PetalRain';
 import Navbar from './components/Navbar';
 import Hero from './sections/Hero';
@@ -5,13 +6,31 @@ import ReasonsSection from './sections/ReasonsSection';
 import LetterSection from './sections/LetterSection';
 import MemoriesSection from './sections/MemoriesSection';
 import PromisesSection from './sections/PromisesSection';
+import SurpriseSection from './sections/SurpriseSection';
 import Footer from './sections/Footer';
 import HeartClickEffect from './components/HeartClickEffect';
 import MouseGlowEffect from './components/MouseGlowEffect';
+import LoveJetIntro from './components/LoveJetIntro';
 
 export default function App() {
+  const [introPlaying, setIntroPlaying] = useState(true);
+
+  useEffect(() => {
+    if (introPlaying) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = 'unset';
+    }
+    return () => {
+      document.body.style.overflow = 'unset';
+    };
+  }, [introPlaying]);
+
   return (
     <div className="relative min-h-screen overflow-x-hidden">
+      {/* Aerodynamic Love Jet Opening Animation */}
+      <LoveJetIntro onComplete={() => setIntroPlaying(false)} />
+
       {/* Background layer */}
       <PetalRain />
       
@@ -31,6 +50,7 @@ export default function App() {
           <LetterSection />
           <MemoriesSection />
           <PromisesSection />
+          <SurpriseSection />
         </main>
         
         <Footer />

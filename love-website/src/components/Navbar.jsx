@@ -6,7 +6,8 @@ const NAV_LINKS = [
   { name: 'Our Story', href: '#our-story' },
   { name: 'Letter', href: '#letter' },
   { name: 'Memories', href: '#memories' },
-  { name: 'Promises', href: '#promises' }
+  { name: 'Promises', href: '#promises' },
+  { name: 'Surprise', href: '#surprise' }
 ];
 
 export default function Navbar() {
