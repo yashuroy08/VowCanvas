@@ -3,9 +3,24 @@
 @tailwind utilities;
 
 @layer base {
+  :root {
+    --rose-blush: #fff0f3;
+    --rose-deep: #8b1a3a;
+    --rose-medium: #c0506a;
+    --rose-soft: #d48094;
+    --rose-border: #f5c0cc;
+    --rose-dark: #7a2038;
+    --rose-dark-accent: #6b1c32;
+    --rose-medium-accent: #b04060;
+    --rose-light-accent: #ffd9e2;
+    --rose-gradient-start: #fff5f7;
+    --rose-gradient-end: #ffe8ee;
+    --rose-text-muted: #b06070;
+  }
+
   body {
-    background-color: #fff0f3;
-    color: #8b1a3a;
+    background-color: var(--rose-blush);
+    color: var(--rose-deep);
     @apply font-lato;
   }
   

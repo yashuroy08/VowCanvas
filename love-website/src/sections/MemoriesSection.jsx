@@ -119,7 +119,7 @@ export default function MemoriesSection() {
               borderColor: "rgba(244,63,94,0.25)"
             }}
             transition={{ duration: 0.3 }}
-            className="bg-gradient-to-br from-[#fff5f7] to-[#ffe8ee] border border-pink-200/50 rounded-2xl p-8 text-center flex flex-col items-center justify-center min-h-[220px] transition-colors duration-300"
+            className="bg-gradient-to-br from-rose-grad-start to-rose-grad-end border border-pink-200/50 rounded-2xl p-8 text-center flex flex-col items-center justify-center min-h-[220px] transition-colors duration-300"
           >
             <div className="mb-4 select-none">
               {mem.icon}
@@ -127,7 +127,7 @@ export default function MemoriesSection() {
             <h3 className="font-cormorant text-[22px] font-semibold text-rose-deep mb-2">
               {mem.title}
             </h3>
-            <p className="font-lato text-[13px] font-light text-[#b06070] leading-[1.8] max-w-xs">
+            <p className="font-lato text-[13px] font-light text-rose-muted leading-[1.8] max-w-xs">
               {mem.desc}
             </p>
           </motion.li>

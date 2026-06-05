@@ -161,7 +161,7 @@ export default function SurpriseSection() {
                 Happy Birthday, My Love!
               </h3>
               
-              <p className="font-cormorant italic text-[18px] md:text-[20px] text-[#6b1c32] leading-[2] mb-6">
+              <p className="font-cormorant italic text-[18px] md:text-[20px] text-rose-dark-accent leading-[2] mb-6">
                 "May your day be filled with as much light, joy, and laughter as you bring into my life every single day. You deserve the entire universe and more. Wishing you the happiest and most magical year ahead. I love you, always."
               </p>
 

@@ -51,7 +51,7 @@ export default function PromisesSection() {
             key={index}
             variants={itemVariants}
             className={`flex items-start gap-5 py-5 group ${
-              index === PROMISES.length - 1 ? '' : 'border-b border-[#f5d0d8]/60'
+              index === PROMISES.length - 1 ? '' : 'border-b border-rose-border/60'
             }`}
           >
             <motion.svg 

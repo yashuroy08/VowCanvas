@@ -75,7 +75,7 @@ export default function ReasonsSection() {
                 </svg>
               </div>
               
-              <p className="font-cormorant text-[19px] text-[#7a2038] leading-[1.7] z-10">
+              <p className="font-cormorant text-[19px] text-rose-dark leading-[1.7] z-10">
                 {reason}
               </p>
             </motion.li>
