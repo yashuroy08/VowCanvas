@@ -1,4 +1,3 @@
-/* eslint-disable react-hooks/purity */
 import { useEffect, useState, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 
@@ -6,26 +5,73 @@ export default function LoveJetIntro({ onComplete }) {
   const [isVisible, setIsVisible] = useState(true);
 
   useEffect(() => {
+    // Show the intro for 3.4 seconds to allow the rose to fully bloom
     const timer = setTimeout(() => {
       setIsVisible(false);
       if (onComplete) onComplete();
-    }, 2800); // Intro lasts 2.8 seconds
+    }, 3400);
     return () => clearTimeout(timer);
   }, [onComplete]);
 
-  // Trailing sparkles/hearts (generated once on mount to respect hook purity rules)
-  const trailParticles = useMemo(() => {
-    return Array.from({ length: 20 }).map((_, i) => {
-      const delay = 0.2 + i * 0.1;
-      const progress = i / 19;
-      const x = `${-10 + progress * 120}vw`;
-      // Create a wave path simulating lift, drag dips
-      const y = `${75 - Math.sin(progress * Math.PI * 2.5) * 35 - progress * 40}vh`;
-      const size = Math.random() * (12 - 6) + 6;
-      const jitter = Math.random() * 20 - 10;
-      return { id: i, delay, x, y, size, jitter };
-    });
+  // Floating background sparkles/hearts
+  const sparkles = useMemo(() => {
+    return Array.from({ length: 15 }).map((_, i) => ({
+      id: i,
+      x: `${Math.random() * 100}%`,
+      yStart: '110vh',
+      yEnd: '-10vh',
+      size: Math.random() * (16 - 6) + 6,
+      delay: Math.random() * 2,
+      duration: Math.random() * 2 + 3,
+    }));
   }, []);
+
+  // SVG Paths for the blooming rose outline
+  const stemPath = "M100 200 Q100 155, 115 125";
+  const leafLeft = "M100 170 C80 165, 70 145, 98 140 C99 150, 95 165, 100 170 Z";
+  const leafRight = "M106 150 C125 145, 135 125, 112 125 C110 133, 112 145, 107 150 Z";
+  
+  // Overlapping rose petals for an organic look
+  const outerPetals = "M90 120 C70 110, 65 80, 90 60 C105 45, 125 45, 140 60 C165 80, 160 110, 140 120 C120 130, 110 125, 115 120 C130 110, 145 95, 140 75 C135 55, 115 55, 95 75 C85 90, 90 110, 105 115 Z";
+  const middlePetals = "M100 100 C90 90, 92 73, 105 67 C118 63, 130 75, 125 90 C120 103, 112 105, 108 100 C102 93, 110 80, 118 83 C122 87, 115 97, 108 100 C105 100, 102 97, 100 100 Z";
+  const innerBud = "M110 90 C105 85, 108 77, 115 77 C120 77, 122 85, 115 90 C112 93, 108 90, 110 90 Z";
+
+  const stemVariants = {
+    hidden: { pathLength: 0, opacity: 0 },
+    visible: { 
+      pathLength: 1, 
+      opacity: 1,
+      transition: { duration: 0.9, ease: "easeInOut" }
+    }
+  };
+
+  const leafVariants = {
+    hidden: { pathLength: 0, opacity: 0, scale: 0.8 },
+    visible: { 
+      pathLength: 1, 
+      opacity: 0.9,
+      scale: 1,
+      transition: { delay: 0.5, duration: 0.8, ease: "easeOut" }
+    }
+  };
+
+  const petalVariants = {
+    hidden: { pathLength: 0, opacity: 0, scale: 0.9 },
+    visible: { 
+      pathLength: 1, 
+      opacity: 1,
+      scale: 1,
+      transition: { delay: 0.9, duration: 1.5, ease: "easeInOut" }
+    }
+  };
+
+  const fillVariants = {
+    hidden: { opacity: 0 },
+    visible: { 
+      opacity: 0.05, 
+      transition: { delay: 1.8, duration: 1.2 }
+    }
+  };
 
   return (
     <AnimatePresence>
@@ -33,116 +79,178 @@ export default function LoveJetIntro({ onComplete }) {
         <motion.div
           exit={{ opacity: 0 }}
           transition={{ duration: 0.8, ease: 'easeInOut' }}
-          className="fixed inset-0 z-[100] bg-[#fff0f3] flex flex-col items-center justify-center overflow-hidden select-none pointer-events-auto"
+          className="fixed inset-0 z-[100] bg-gradient-to-tr from-[#fff5f6] via-[#fff0f3] to-[#fff5f6] flex flex-col items-center justify-center overflow-hidden select-none pointer-events-auto"
         >
-          {/* Sky background clouds (subtle SVGs) */}
-          <div className="absolute inset-0 opacity-[0.06] pointer-events-none">
-            <svg className="absolute top-[20%] left-[10%] w-48 h-20 text-rose-medium" viewBox="0 0 100 40" fill="currentColor" aria-hidden="true">
-              <path d="M10 30 a15 15 0 0 1 20 -10 a15 15 0 0 1 25 5 a15 15 0 0 1 25 -5 a15 15 0 0 1 15 15 z" />
-            </svg>
-            <svg className="absolute top-[50%] right-[15%] w-64 h-28 text-rose-medium" viewBox="0 0 100 40" fill="currentColor" aria-hidden="true">
-              <path d="M10 30 a15 15 0 0 1 20 -10 a15 15 0 0 1 25 5 a15 15 0 0 1 25 -5 a15 15 0 0 1 15 15 z" />
-            </svg>
+          {/* Sparkles Floating Upwards */}
+          <div className="absolute inset-0 pointer-events-none overflow-hidden z-0">
+            {sparkles.map((sp) => (
+              <motion.svg
+                key={sp.id}
+                initial={{ opacity: 0, y: sp.yStart, x: sp.x, scale: 0.5 }}
+                animate={{ 
+                  opacity: [0, 0.7, 0.7, 0],
+                  y: sp.yEnd,
+                  scale: [0.5, 1.2, 1.2, 0.5]
+                }}
+                transition={{ 
+                  delay: sp.delay,
+                  duration: sp.duration,
+                  repeat: Infinity,
+                  ease: "easeInOut" 
+                }}
+                className="absolute text-rose-medium/20 fill-current"
+                style={{ width: sp.size, height: sp.size }}
+                viewBox="0 0 24 24"
+                aria-hidden="true"
+              >
+                <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" />
+              </motion.svg>
+            ))}
           </div>
 
-          {/* Aerodynamic path lines (thin dashed vectors drawing) */}
-          <svg className="absolute inset-0 w-full h-full text-rose-border/30 fill-none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-            <motion.path
-              initial={{ pathLength: 0 }}
-              animate={{ pathLength: 1 }}
-              transition={{ duration: 2.2, ease: 'easeInOut' }}
-              d="M -50 650 Q 200 250, 450 400 T 950 150 T 1500 -100"
-              stroke="currentColor"
-              strokeWidth="1.5"
-              strokeDasharray="5,5"
-            />
-          </svg>
-
-          {/* Particle Trails */}
-          {trailParticles.map((particle) => (
-            <motion.svg
-              key={particle.id}
-              initial={{ opacity: 0, scale: 0.2 }}
-              animate={{ 
-                opacity: [0, 0.8, 0], 
-                scale: [0.2, 1, 0.4],
-                y: `calc(${particle.y} + ${particle.jitter}px)`
-              }}
-              transition={{ delay: particle.delay, duration: 0.8, ease: 'easeOut' }}
-              className="absolute text-rose-medium/40 fill-current"
-              style={{
-                left: particle.x,
-                top: particle.y,
-                width: particle.size,
-                height: particle.size,
-              }}
-              viewBox="0 0 24 24"
-              aria-hidden="true"
-            >
-              <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" />
-            </motion.svg>
-          ))}
-
-          {/* The Jet */}
-          <motion.div
-            initial={{ 
-              x: '-20vw', 
-              y: '80vh', 
-              rotate: -35,
-              scale: 0.8
-            }}
-            animate={{
-              x: ['-20vw', '15vw', '38vw', '55vw', '75vw', '95vw', '120vw'],
-              y: ['80vh', '48vh', '35vh', '50vh', '33vh', '45vh', '-20vh'],
-              // Banking angles reflecting lift, drag, and turns
-              rotate: [-35, -45, -15, 25, -20, -40, -55],
-              scale: [0.8, 1, 1.1, 0.9, 1.05, 1, 0.7]
-            }}
-            transition={{
-              duration: 2.4,
-              ease: 'easeInOut',
-              times: [0, 0.2, 0.4, 0.55, 0.75, 0.9, 1]
-            }}
-            className="absolute z-20"
-            style={{
-              width: '60px',
-              height: '60px',
-            }}
+          {/* Elegant Blooming Rose Card */}
+          <motion.div 
+            initial={{ opacity: 0, scale: 0.95 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ duration: 0.8 }}
+            className="z-10 flex flex-col items-center gap-6"
           >
-            {/* Elegant SVG Paper Jet with Heart Wing Emblem */}
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.2" className="w-full h-full text-rose-deep drop-shadow-[0_4px_12px_rgba(244,63,94,0.3)]" aria-hidden="true">
-              {/* Airplane body */}
-              <path strokeLinecap="round" strokeLinejoin="round" d="M6 12L3.269 3.126A59.768 59.768 0 0121.485 12 59.77 59.77 0 013.27 20.876L5.999 12zm0 0h7.5" />
-              {/* Heart logo on the wing */}
-              <path 
-                d="M17 9.5c-.5-.5-1.2-.5-1.7 0l-.3.3-.3-.3c-.5-.5-1.2-.5-1.7 0s-.5 1.2 0 1.7l2 2 2-2c.5-.5.5-1.2 0-1.7z" 
-                fill="#f43f5e" 
-                stroke="none" 
-              />
-            </svg>
-          </motion.div>
+            {/* SVG Rose drawing */}
+            <div className="relative w-64 h-64 flex items-center justify-center bg-white/40 backdrop-blur-md border border-pink-200/30 rounded-full shadow-[0_8px_32px_rgba(244,63,94,0.04)] p-6">
+              <svg 
+                viewBox="0 0 200 220" 
+                fill="none" 
+                className="w-full h-full drop-shadow-[0_2px_8px_rgba(244,63,94,0.15)]"
+                aria-hidden="true"
+              >
+                {/* Stem (green/olive tone) */}
+                <motion.path 
+                  d={stemPath} 
+                  stroke="#65a30d" 
+                  strokeWidth="2.5" 
+                  strokeLinecap="round"
+                  variants={stemVariants}
+                  initial="hidden"
+                  animate="visible"
+                />
 
-          {/* Intro Text */}
-          <motion.div
-            initial={{ opacity: 0, scale: 0.9, filter: 'blur(5px)' }}
-            animate={{ 
-              opacity: [0, 1, 1, 0],
-              scale: [0.95, 1, 1, 0.95],
-              filter: ['blur(4px)', 'blur(0px)', 'blur(0px)', 'blur(2px)']
-            }}
-            transition={{ 
-              duration: 2.2, 
-              times: [0, 0.2, 0.8, 1],
-              ease: 'easeInOut'
-            }}
-            className="text-center z-10"
-          >
-            <h2 className="font-cormorant text-[28px] md:text-[36px] font-light text-rose-deep select-none">
-              A message is flying in...
-            </h2>
-            <p className="font-lato text-[11px] tracking-[4px] uppercase text-rose-soft mt-2 select-none">
-              Get ready ♡
-            </p>
+                {/* Left Leaf */}
+                <motion.path 
+                  d={leafLeft} 
+                  stroke="#65a30d" 
+                  strokeWidth="1.5" 
+                  strokeLinejoin="round"
+                  variants={leafVariants}
+                  initial="hidden"
+                  animate="visible"
+                />
+                <motion.path 
+                  d={leafLeft} 
+                  fill="#65a30d" 
+                  variants={fillVariants}
+                  initial="hidden"
+                  animate="visible"
+                />
+
+                {/* Right Leaf */}
+                <motion.path 
+                  d={leafRight} 
+                  stroke="#65a30d" 
+                  strokeWidth="1.5" 
+                  strokeLinejoin="round"
+                  variants={leafVariants}
+                  initial="hidden"
+                  animate="visible"
+                />
+                <motion.path 
+                  d={leafRight} 
+                  fill="#65a30d" 
+                  variants={fillVariants}
+                  initial="hidden"
+                  animate="visible"
+                />
+
+                {/* Rose Outer Petals */}
+                <motion.path 
+                  d={outerPetals} 
+                  stroke="#be123c" 
+                  strokeWidth="2.5" 
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  variants={petalVariants}
+                  initial="hidden"
+                  animate="visible"
+                />
+                <motion.path 
+                  d={outerPetals} 
+                  fill="#f43f5e" 
+                  variants={fillVariants}
+                  initial="hidden"
+                  animate="visible"
+                />
+
+                {/* Rose Middle Petals */}
+                <motion.path 
+                  d={middlePetals} 
+                  stroke="#e11d48" 
+                  strokeWidth="2" 
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  variants={petalVariants}
+                  initial="hidden"
+                  animate="visible"
+                />
+                <motion.path 
+                  d={middlePetals} 
+                  fill="#f43f5e" 
+                  variants={fillVariants}
+                  initial="hidden"
+                  animate="visible"
+                />
+
+                {/* Rose Inner Bud */}
+                <motion.path 
+                  d={innerBud} 
+                  stroke="#fda4af" 
+                  strokeWidth="1.5" 
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  variants={petalVariants}
+                  initial="hidden"
+                  animate="visible"
+                />
+                <motion.path 
+                  d={innerBud} 
+                  fill="#f43f5e" 
+                  variants={fillVariants}
+                  initial="hidden"
+                  animate="visible"
+                />
+              </svg>
+            </div>
+
+            {/* Glowing/blur base behind the rose */}
+            <div className="absolute top-1/3 left-1/2 -translate-x-1/2 -translate-y-1/2 w-48 h-48 bg-pink-300/10 rounded-full blur-3xl pointer-events-none" />
+
+            {/* Title & description */}
+            <div className="text-center">
+              <motion.h2 
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 1.4, duration: 0.8 }}
+                className="font-cormorant text-[28px] md:text-[34px] font-light text-rose-deep select-none"
+              >
+                A message of love is blooming
+              </motion.h2>
+              <motion.p 
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 1.8, duration: 0.8 }}
+                className="font-lato text-[11px] tracking-[4px] uppercase text-rose-soft mt-2 select-none"
+              >
+                Preparing your surprise ♡
+              </motion.p>
+            </div>
           </motion.div>
         </motion.div>
       )}
