@@ -34,25 +34,33 @@ export default function Navbar() {
         </a>
 
         {/* Desktop Links */}
-        <div className="hidden md:flex items-center gap-8">
+        <ul className="hidden md:flex items-center gap-8">
           {NAV_LINKS.map((link) => (
-            <a
-              key={link.name}
-              href={link.href}
-              onClick={(e) => handleScroll(e, link.href)}
-              className="font-lato text-[12px] tracking-[2px] uppercase text-rose-soft hover:text-rose-deep transition-colors duration-300"
-            >
-              {link.name}
-            </a>
+            <li key={link.name}>
+              <a
+                href={link.href}
+                onClick={(e) => handleScroll(e, link.href)}
+                className="font-lato text-[12px] tracking-[2px] uppercase text-rose-soft hover:text-rose-deep transition-colors duration-300"
+              >
+                {link.name}
+              </a>
+            </li>
           ))}
-        </div>
+        </ul>
 
         {/* Mobile Menu Button */}
         <button
           onClick={() => setIsOpen(!isOpen)}
+          aria-label="Toggle navigation menu"
+          aria-expanded={isOpen}
+          aria-controls="mobile-menu"
           className="md:hidden text-rose-deep p-1 focus:outline-none"
         >
-          {isOpen ? <XMarkIcon className="h-6 w-6" /> : <Bars3Icon className="h-6 w-6" />}
+          {isOpen ? (
+            <XMarkIcon className="h-6 w-6" aria-hidden="true" />
+          ) : (
+            <Bars3Icon className="h-6 w-6" aria-hidden="true" />
+          )}
         </button>
       </div>
 
@@ -60,24 +68,26 @@ export default function Navbar() {
       <AnimatePresence>
         {isOpen && (
           <motion.div
+            id="mobile-menu"
             initial={{ height: 0, opacity: 0 }}
             animate={{ height: 'auto', opacity: 1 }}
             exit={{ height: 0, opacity: 0 }}
             transition={{ duration: 0.3, ease: 'easeInOut' }}
             className="md:hidden overflow-hidden border-t border-rose-border/20 bg-[#fff0f3]"
           >
-            <div className="px-6 py-4 flex flex-col gap-4">
+            <ul className="px-6 py-4 flex flex-col gap-4">
               {NAV_LINKS.map((link) => (
-                <a
-                  key={link.name}
-                  href={link.href}
-                  onClick={(e) => handleScroll(e, link.href)}
-                  className="font-lato text-[12px] tracking-[2px] uppercase text-rose-soft hover:text-rose-deep py-2 transition-colors duration-300"
-                >
-                  {link.name}
-                </a>
+                <li key={link.name}>
+                  <a
+                    href={link.href}
+                    onClick={(e) => handleScroll(e, link.href)}
+                    className="font-lato text-[12px] tracking-[2px] uppercase text-rose-soft hover:text-rose-deep py-2 block transition-colors duration-300"
+                  >
+                    {link.name}
+                  </a>
+                </li>
               ))}
-            </div>
+            </ul>
           </motion.div>
         )}
       </AnimatePresence>
