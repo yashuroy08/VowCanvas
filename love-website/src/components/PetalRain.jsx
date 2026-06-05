@@ -1,12 +1,11 @@
-import React, { useEffect, useState } from 'react';
+/* eslint-disable react-hooks/purity */
+import { useMemo } from 'react';
 
 const PETAL_COLORS = ['#ffb3c6', '#ff85a1', '#ff4d79', '#ffd6e0', '#ff8fa3'];
 
 export default function PetalRain() {
-  const [petals, setPetals] = useState([]);
-
-  useEffect(() => {
-    const generatedPetals = Array.from({ length: 35 }).map((_, index) => {
+  const petals = useMemo(() => {
+    return Array.from({ length: 35 }).map((_, index) => {
       const size = Math.random() * (26 - 8) + 8; // Size between 8px and 26px
       const left = Math.random() * 100; // Position between 0% and 100% vw
       const color = PETAL_COLORS[Math.floor(Math.random() * PETAL_COLORS.length)];
@@ -26,11 +25,10 @@ export default function PetalRain() {
         }
       };
     });
-    setPetals(generatedPetals);
   }, []);
 
   return (
-    <div className="fixed inset-0 pointer-events-none z-0 overflow-hidden select-none">
+    <div aria-hidden="true" className="fixed inset-0 pointer-events-none z-0 overflow-hidden select-none">
       {petals.map((petal) => (
         <div
           key={petal.id}

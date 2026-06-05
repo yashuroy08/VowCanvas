@@ -1,4 +1,3 @@
-import React from 'react';
 import { motion } from 'framer-motion';
 
 const EMOJIS = ['🌸', '🌹', '🌷', '🤍', '🌷', '🌹', '🌸'];
@@ -25,6 +24,7 @@ const emojiVariants = {
 export default function FlowerCrown() {
   return (
     <motion.div 
+      aria-hidden="true"
       className="flex justify-center gap-2 text-2xl select-none"
       variants={containerVariants}
       initial="hidden"
