@@ -1,5 +1,5 @@
 import { useRef, useState } from 'react';
-import { motion, useMotionValue, useSpring, AnimatePresence } from 'framer-motion';
+import { motion, useMotionValue, useSpring, useTransform, AnimatePresence } from 'framer-motion';
 
 const IMAGES = [
   {
@@ -33,6 +33,47 @@ const IMAGES = [
     desc: 'Every road leads to somewhere beautiful when you are by my side.'
   }
 ];
+
+function CircularCard({ img, angle, radius, rotateSpring, onClick }) {
+  const cardRotation = useTransform(rotateSpring, (r) => {
+    const totalRot = (r + angle) % 360;
+    return totalRot < 0 ? totalRot + 360 : totalRot;
+  });
+
+  // Calculate opacity and scale based on rotation angle to make it slide smoothly around
+  const opacity = useTransform(cardRotation, [0, 90, 180, 270, 360], [1, 0.45, 0.15, 0.45, 1]);
+  const scale = useTransform(cardRotation, [0, 90, 180, 270, 360], [1, 0.85, 0.7, 0.85, 1]);
+
+  return (
+    <motion.div
+      className="absolute w-full h-full rounded-2xl overflow-hidden border border-pink-200/50 bg-white/80 shadow-md cursor-pointer"
+      style={{
+        rotateY: angle,
+        z: radius,
+        opacity: opacity,
+        scale: scale,
+        transformStyle: 'preserve-3d',
+      }}
+      whileHover={{ 
+        scale: 1.05,
+        boxShadow: "0 15px 35px rgba(244,63,94,0.15)"
+      }}
+      onClick={onClick}
+    >
+      <img
+        src={img.url}
+        alt={img.title}
+        className="w-full h-full object-cover pointer-events-none"
+        loading="lazy"
+      />
+      <div className="absolute inset-0 bg-gradient-to-t from-black/75 via-black/10 to-transparent p-4 flex flex-col justify-end text-left">
+        <h4 className="font-cormorant text-[18px] font-semibold text-white leading-tight">
+          {img.title}
+        </h4>
+      </div>
+    </motion.div>
+  );
+}
 
 export default function CircularGallery() {
   const containerRef = useRef(null);
@@ -68,31 +109,14 @@ export default function CircularGallery() {
         {IMAGES.map((img, i) => {
           const angle = i * (360 / cardCount);
           return (
-            <motion.div
+            <CircularCard
               key={i}
-              className="absolute w-full h-full rounded-2xl overflow-hidden border border-pink-200/50 bg-white/80 shadow-md"
-              style={{
-                transform: `rotateY(${angle}deg) translateZ(${radius}px)`,
-                backfaceVisibility: 'hidden',
-              }}
-              whileHover={{ 
-                scale: 1.05,
-                boxShadow: "0 15px 35px rgba(244,63,94,0.15)"
-              }}
+              img={img}
+              angle={angle}
+              radius={radius}
+              rotateSpring={rotateSpring}
               onClick={() => setActiveImage(img)}
-            >
-              <img
-                src={img.url}
-                alt={img.title}
-                className="w-full h-full object-cover pointer-events-none"
-                loading="lazy"
-              />
-              <div className="absolute inset-0 bg-gradient-to-t from-black/75 via-black/10 to-transparent p-4 flex flex-col justify-end text-left">
-                <h4 className="font-cormorant text-[18px] font-semibold text-white leading-tight">
-                  {img.title}
-                </h4>
-              </div>
-            </motion.div>
+            />
           );
         })}
       </motion.div>

@@ -48,7 +48,7 @@ export default function App() {
       <div className="relative z-10 flex flex-col min-h-screen">
         <Navbar />
         
-        <main className="flex-grow">
+        <main className="flex-grow pt-16">
           <Hero />
           <ReasonsSection />
           <LetterSection />

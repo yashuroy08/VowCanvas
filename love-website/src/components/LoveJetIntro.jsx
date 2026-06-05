@@ -3,6 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 
 export default function LoveJetIntro({ onComplete }) {
   const [isVisible, setIsVisible] = useState(true);
+  const [progress, setProgress] = useState(0);
 
   useEffect(() => {
     // Show the intro for 3.4 seconds to allow the rose to fully bloom
@@ -13,6 +14,25 @@ export default function LoveJetIntro({ onComplete }) {
     return () => clearTimeout(timer);
   }, [onComplete]);
 
+  // Luxury-style progress counter (0% to 100%)
+  useEffect(() => {
+    const duration = 2600; // count up in 2.6 seconds
+    const interval = 20; // update every 20ms
+    const totalSteps = duration / interval;
+    let step = 0;
+    
+    const timer = setInterval(() => {
+      step++;
+      const current = Math.min((step / totalSteps) * 100, 100);
+      setProgress(Math.floor(current));
+      if (current >= 100) {
+        clearInterval(timer);
+      }
+    }, interval);
+
+    return () => clearInterval(timer);
+  }, []);
+
   // Floating background sparkles/hearts
   const sparkles = useMemo(() => {
     return Array.from({ length: 15 }).map((_, i) => ({
@@ -20,7 +40,7 @@ export default function LoveJetIntro({ onComplete }) {
       x: `${Math.random() * 100}%`,
       yStart: '110vh',
       yEnd: '-10vh',
-      size: Math.random() * (16 - 6) + 6,
+      size: Math.random() * (14 - 6) + 6,
       delay: Math.random() * 2,
       duration: Math.random() * 2 + 3,
     }));
@@ -73,14 +93,62 @@ export default function LoveJetIntro({ onComplete }) {
     }
   };
 
+  // Staggered letters variants
+  const headingText = "A message of love is blooming";
+  const letters = Array.from(headingText);
+
+  const containerVariants = {
+    hidden: { opacity: 0 },
+    visible: {
+      opacity: 1,
+      transition: { staggerChildren: 0.03, delayChildren: 1.1 }
+    }
+  };
+
+  const letterVariants = {
+    hidden: { opacity: 0, y: 12, filter: 'blur(3px)' },
+    visible: {
+      opacity: 1,
+      y: 0,
+      filter: 'blur(0px)',
+      transition: { duration: 0.6, ease: [0.16, 1, 0.3, 1] }
+    }
+  };
+
   return (
     <AnimatePresence>
       {isVisible && (
         <motion.div
           exit={{ opacity: 0 }}
           transition={{ duration: 0.8, ease: 'easeInOut' }}
-          className="fixed inset-0 z-[100] bg-gradient-to-tr from-[#fff5f6] via-[#fff0f3] to-[#fff5f6] flex flex-col items-center justify-center overflow-hidden select-none pointer-events-auto"
+          className="fixed inset-0 z-[100] bg-gradient-to-tr from-[#fff3f4] via-[#fff0f3] to-[#fff6f7] flex flex-col items-center justify-center overflow-hidden select-none pointer-events-auto"
         >
+          {/* Ambient Floating Blur Orbs */}
+          <motion.div
+            animate={{
+              x: [0, 30, -20, 0],
+              y: [0, -40, 30, 0],
+            }}
+            transition={{
+              duration: 10,
+              repeat: Infinity,
+              ease: "easeInOut"
+            }}
+            className="absolute top-[15%] left-[15%] w-[320px] h-[320px] bg-pink-300/10 rounded-full blur-[80px] pointer-events-none"
+          />
+          <motion.div
+            animate={{
+              x: [0, -40, 20, 0],
+              y: [0, 30, -40, 0],
+            }}
+            transition={{
+              duration: 12,
+              repeat: Infinity,
+              ease: "easeInOut"
+            }}
+            className="absolute bottom-[20%] right-[15%] w-[350px] h-[350px] bg-rose-200/15 rounded-full blur-[90px] pointer-events-none"
+          />
+
           {/* Sparkles Floating Upwards */}
           <div className="absolute inset-0 pointer-events-none overflow-hidden z-0">
             {sparkles.map((sp) => (
@@ -113,10 +181,18 @@ export default function LoveJetIntro({ onComplete }) {
             initial={{ opacity: 0, scale: 0.95 }}
             animate={{ opacity: 1, scale: 1 }}
             transition={{ duration: 0.8 }}
-            className="z-10 flex flex-col items-center gap-6"
+            className="z-10 flex flex-col items-center gap-7"
           >
-            {/* SVG Rose drawing */}
-            <div className="relative w-64 h-64 flex items-center justify-center bg-white/40 backdrop-blur-md border border-pink-200/30 rounded-full shadow-[0_8px_32px_rgba(244,63,94,0.04)] p-6">
+            {/* SVG Rose Container with Border Pulsing */}
+            <div className="relative w-64 h-64 flex items-center justify-center bg-white/50 backdrop-blur-md border border-pink-200/40 rounded-full shadow-[0_8px_32px_rgba(244,63,94,0.03)] p-6">
+              
+              {/* Outer soft breathing ring */}
+              <motion.div 
+                animate={{ scale: [1, 1.05, 1], opacity: [0.3, 0.6, 0.3] }}
+                transition={{ duration: 3, repeat: Infinity, ease: "easeInOut" }}
+                className="absolute inset-0 rounded-full border border-rose-300/30"
+              />
+
               <svg 
                 viewBox="0 0 200 220" 
                 fill="none" 
@@ -229,27 +305,49 @@ export default function LoveJetIntro({ onComplete }) {
               </svg>
             </div>
 
-            {/* Glowing/blur base behind the rose */}
+            {/* Glowing blur base behind the rose */}
             <div className="absolute top-1/3 left-1/2 -translate-x-1/2 -translate-y-1/2 w-48 h-48 bg-pink-300/10 rounded-full blur-3xl pointer-events-none" />
 
             {/* Title & description */}
-            <div className="text-center">
+            <div className="text-center flex flex-col items-center justify-center">
+              {/* Staggered letter title */}
               <motion.h2 
-                initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 1.4, duration: 0.8 }}
-                className="font-cormorant text-[28px] md:text-[34px] font-light text-rose-deep select-none"
+                variants={containerVariants}
+                initial="hidden"
+                animate="visible"
+                className="font-cormorant text-[28px] md:text-[34px] font-light text-rose-deep select-none flex flex-wrap justify-center gap-[1px]"
               >
-                A message of love is blooming
+                {letters.map((char, index) => (
+                  <motion.span 
+                    key={index} 
+                    variants={letterVariants}
+                    style={{ display: char === ' ' ? 'inline-block' : 'inline' }}
+                    className={char === ' ' ? 'w-2' : ''}
+                  >
+                    {char}
+                  </motion.span>
+                ))}
               </motion.h2>
-              <motion.p 
-                initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 1.8, duration: 0.8 }}
-                className="font-lato text-[11px] tracking-[4px] uppercase text-rose-soft mt-2 select-none"
-              >
-                Preparing your surprise ♡
-              </motion.p>
+
+              <div className="mt-3 flex flex-col items-center gap-1">
+                <motion.p 
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 0.65 }}
+                  transition={{ delay: 1.8, duration: 0.8 }}
+                  className="font-lato text-[9px] tracking-[4px] uppercase text-rose-soft select-none"
+                >
+                  Preparing your surprise
+                </motion.p>
+                {/* Elegant numerical percentage counter */}
+                <motion.div 
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  transition={{ delay: 0.3 }}
+                  className="font-cormorant italic text-[20px] font-semibold text-rose-medium/85 select-none mt-1"
+                >
+                  {progress}%
+                </motion.div>
+              </div>
             </div>
           </motion.div>
         </motion.div>
