@@ -30,6 +30,16 @@ export default function App() {
     };
   }, [introPlaying]);
 
+  useEffect(() => {
+    if ('scrollRestoration' in window.history) {
+      window.history.scrollRestoration = 'manual';
+    }
+    window.scrollTo(0, 0);
+    if (window.location.hash) {
+      window.history.replaceState(null, null, ' ');
+    }
+  }, []);
+
   return (
     <div className="relative min-h-screen overflow-x-hidden">
       {/* Aerodynamic Love Jet Opening Animation */}
