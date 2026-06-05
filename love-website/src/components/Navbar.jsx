@@ -29,7 +29,7 @@ export default function Navbar() {
         <a 
           href="#" 
           onClick={(e) => { e.preventDefault(); window.scrollTo({ top: 0, behavior: 'smooth' }); }}
-          className="flex items-center gap-1.5 font-cormorant text-[22px] font-semibold text-rose-deep group"
+          className="flex items-center gap-1.5 py-2 font-cormorant text-[22px] font-semibold text-rose-deep group"
         >
           <motion.svg 
             whileHover={{ scale: 1.25, rotate: [0, -10, 10, 0] }}
@@ -52,7 +52,7 @@ export default function Navbar() {
                 transition={{ type: 'spring', stiffness: 400, damping: 10 }}
                 href={link.href}
                 onClick={(e) => handleScroll(e, link.href)}
-                className="inline-block font-lato text-[12px] tracking-[2px] uppercase text-rose-soft hover:text-rose-deep transition-colors duration-300"
+                className="inline-block py-4 px-1 font-lato text-[12px] tracking-[2px] uppercase text-rose-soft hover:text-rose-deep transition-colors duration-300"
               >
                 {link.name}
               </motion.a>
@@ -66,7 +66,7 @@ export default function Navbar() {
           aria-label="Toggle navigation menu"
           aria-expanded={isOpen}
           aria-controls="mobile-menu"
-          className="md:hidden text-rose-deep p-1 focus:outline-none"
+          className="md:hidden text-rose-deep p-2.5 focus:outline-none"
         >
           {isOpen ? (
             <XMarkIcon className="h-6 w-6" aria-hidden="true" />
@@ -93,7 +93,7 @@ export default function Navbar() {
                   <a
                     href={link.href}
                     onClick={(e) => handleScroll(e, link.href)}
-                    className="font-lato text-[12px] tracking-[2px] uppercase text-rose-soft hover:text-rose-deep py-2 block transition-colors duration-300"
+                    className="font-lato text-[12px] tracking-[2px] uppercase text-rose-soft hover:text-rose-deep py-4 block transition-colors duration-300"
                   >
                     {link.name}
                   </a>

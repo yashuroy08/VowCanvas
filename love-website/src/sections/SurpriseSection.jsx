@@ -168,13 +168,13 @@ export default function SurpriseSection() {
               <div className="flex justify-center gap-4 mt-6">
                 <button
                   onClick={triggerConfetti}
-                  className="font-lato text-[11px] tracking-[2px] uppercase px-4 py-2 border border-rose-border text-rose-soft hover:text-rose-deep hover:bg-rose-50 rounded-full transition-colors duration-300 focus:outline-none"
+                  className="font-lato text-[11px] tracking-[2px] uppercase px-6 py-3.5 border border-rose-border text-rose-soft hover:text-rose-deep hover:bg-rose-50 rounded-full transition-colors duration-300 focus:outline-none"
                 >
                   🎉 Confetti
                 </button>
                 <button
                   onClick={handleCloseBox}
-                  className="font-lato text-[11px] tracking-[2px] uppercase px-4 py-2 bg-rose-medium text-white hover:bg-rose-deep rounded-full shadow-sm hover:shadow transition-all duration-300 focus:outline-none"
+                  className="font-lato text-[11px] tracking-[2px] uppercase px-6 py-3.5 bg-rose-medium text-white hover:bg-rose-deep rounded-full shadow-sm hover:shadow transition-all duration-300 focus:outline-none"
                 >
                   ♡ Close
                 </button>
