@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion, AnimatePresence, useScroll, useSpring, useTransform } from 'framer-motion';
 import { Bars3Icon, XMarkIcon } from '@heroicons/react/24/outline';
 
 const NAV_LINKS = [
@@ -12,6 +12,15 @@ const NAV_LINKS = [
 
 export default function Navbar() {
   const [isOpen, setIsOpen] = useState(false);
+  const { scrollYProgress } = useScroll();
+  const scaleX = useSpring(scrollYProgress, {
+    stiffness: 100,
+    damping: 30,
+    restDelta: 0.001
+  });
+
+  const heartXSpring = useSpring(scrollYProgress, { stiffness: 100, damping: 30 });
+  const heartX = useTransform(heartXSpring, [0, 1], ["0%", "100%"]);
 
   const handleScroll = (e, href) => {
     e.preventDefault();
@@ -103,6 +112,22 @@ export default function Navbar() {
           </motion.div>
         )}
       </AnimatePresence>
+
+      {/* Scroll Progress Bar & Heart Tracker */}
+      <div className="absolute bottom-[-1.5px] left-0 right-0 h-[3px] bg-rose-border/10 overflow-visible pointer-events-none">
+        <motion.div 
+          className="h-full bg-rose-medium origin-left"
+          style={{ scaleX }}
+        />
+        <motion.div
+          style={{ left: heartX, x: "-50%" }}
+          className="absolute top-1/2 -translate-y-1/2 text-rose-medium pointer-events-none"
+        >
+          <svg className="w-3.5 h-3.5 fill-current filter drop-shadow-[0_1px_2px_rgba(244,63,94,0.3)]" viewBox="0 0 24 24">
+            <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" />
+          </svg>
+        </motion.div>
+      </div>
     </nav>
   );
 }
