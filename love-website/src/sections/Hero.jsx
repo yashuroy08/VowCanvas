@@ -23,7 +23,21 @@ const wordVariants = {
   }
 };
 
-export default function Hero() {
+export default function Hero({ startAnimation }) {
+  const heroRevealVariants = {
+    hidden: { opacity: 0, scale: 1.05, filter: 'blur(12px)' },
+    visible: {
+      opacity: 1,
+      scale: 1,
+      filter: 'blur(0px)',
+      transition: {
+        duration: 1.4,
+        ease: [0.16, 1, 0.3, 1],
+        delayChildren: 0.2
+      }
+    }
+  };
+
   return (
     <section className="relative min-h-[calc(100vh-64px)] flex flex-col items-center justify-between py-16 px-6 bg-[radial-gradient(ellipse_at_50%_0%,#ffe0ea_0%,#fff0f3_60%)] overflow-hidden">
       {/* Decorative background grid vector lines */}
@@ -36,14 +50,19 @@ export default function Hero() {
         <rect width="100%" height="100%" fill="url(#heroGrid)" />
       </svg>
 
-      <div className="flex-1 flex flex-col items-center justify-center gap-10 z-10">
+      <motion.div 
+        variants={heroRevealVariants}
+        initial="hidden"
+        animate={startAnimation ? "visible" : "hidden"}
+        className="flex-1 flex flex-col items-center justify-center gap-10 z-10"
+      >
         <FlowerCrown />
         
         <div className="text-center select-none">
           <motion.h1 
             variants={titleContainer}
             initial="hidden"
-            animate="visible"
+            animate={startAnimation ? "visible" : "hidden"}
             className="font-cormorant text-[clamp(56px,11vw,104px)] font-light leading-[1.05] text-rose-deep"
           >
             <motion.span variants={wordVariants} className="inline-block mr-3">For</motion.span> <br />
@@ -52,18 +71,18 @@ export default function Hero() {
           
           <motion.p 
             initial={{ opacity: 0, y: 20, filter: 'blur(6px)' }}
-            animate={{ opacity: 1, y: 0, filter: 'blur(0px)' }}
+            animate={startAnimation ? { opacity: 1, y: 0, filter: 'blur(0px)' } : { opacity: 0, y: 20, filter: 'blur(6px)' }}
             transition={{ duration: 1.2, delay: 0.9, ease: [0.16, 1, 0.3, 1] }}
             className="font-cormorant italic text-[20px] md:text-[24px] text-rose-medium mt-8"
           >
             A garden of words, grown just for you
           </motion.p>
         </div>
-      </div>
+      </motion.div>
 
       <motion.button 
         initial={{ opacity: 0, y: 10 }}
-        animate={{ opacity: 1, y: 0 }}
+        animate={startAnimation ? { opacity: 1, y: 0 } : { opacity: 0, y: 10 }}
         transition={{ delay: 1.4, duration: 0.8 }}
         className="flex flex-col items-center gap-1 py-4 px-6 select-none animate-pulse-down cursor-pointer focus:outline-none z-10"
         onClick={() => {

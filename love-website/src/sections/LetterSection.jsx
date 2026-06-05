@@ -7,10 +7,10 @@ export default function LetterSection() {
       <SectionDivider label="From my heart" />
       
       <motion.div
-        initial={{ opacity: 0, y: 40 }}
-        whileInView={{ opacity: 1, y: 0 }}
-        viewport={{ once: true }}
-        transition={{ duration: 0.8, ease: 'easeOut' }}
+        initial={{ opacity: 0, scale: 0.96, filter: 'blur(12px)' }}
+        whileInView={{ opacity: 1, scale: 1, filter: 'blur(0px)' }}
+        viewport={{ once: true, margin: "-120px" }}
+        transition={{ duration: 1.4, ease: [0.16, 1, 0.3, 1] }}
         className="relative bg-white/80 border border-pink-200/50 rounded-3xl p-8 md:p-14 shadow-sm mt-8 overflow-hidden"
       >
         {/* Oversized Quote SVG */}

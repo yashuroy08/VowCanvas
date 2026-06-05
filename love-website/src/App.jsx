@@ -59,7 +59,7 @@ export default function App() {
         <Navbar />
         
         <main className="flex-grow pt-16">
-          <Hero />
+          <Hero startAnimation={!introPlaying} />
           <ReasonsSection />
           <LetterSection />
           <MemoriesSection />

@@ -89,7 +89,13 @@ export default function SurpriseSection() {
         </p>
       </div>
 
-      <div className="flex flex-col items-center justify-center min-h-[350px]">
+      <motion.div
+        initial={{ opacity: 0, y: 50, scale: 0.95 }}
+        whileInView={{ opacity: 1, y: 0, scale: 1 }}
+        viewport={{ once: true, margin: "-50px" }}
+        transition={{ duration: 1.0, ease: [0.16, 1, 0.3, 1] }}
+        className="flex flex-col items-center justify-center min-h-[350px]"
+      >
         <AnimatePresence mode="wait">
           {!isOpen ? (
             <motion.div
@@ -182,7 +188,7 @@ export default function SurpriseSection() {
             </motion.div>
           )}
         </AnimatePresence>
-      </div>
+      </motion.div>
     </section>
   );
 }

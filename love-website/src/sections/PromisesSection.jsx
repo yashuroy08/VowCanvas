@@ -20,11 +20,12 @@ const listVariants = {
 };
 
 const itemVariants = {
-  hidden: { opacity: 0, x: -30 },
+  hidden: { opacity: 0, x: -50, filter: 'blur(4px)' },
   visible: { 
     opacity: 1, 
     x: 0,
-    transition: { duration: 0.7, ease: [0.16, 1, 0.3, 1] }
+    filter: 'blur(0px)',
+    transition: { type: 'spring', stiffness: 60, damping: 14 }
   }
 };
 
