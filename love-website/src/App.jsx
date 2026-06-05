@@ -13,7 +13,11 @@ import MouseGlowEffect from './components/MouseGlowEffect';
 import LoveJetIntro from './components/LoveJetIntro';
 
 export default function App() {
-  const [introPlaying, setIntroPlaying] = useState(true);
+  const [introPlaying, setIntroPlaying] = useState(() => {
+    return typeof window !== 'undefined' && new URLSearchParams(window.location.search).has('skipIntro')
+      ? false
+      : true;
+  });
 
   useEffect(() => {
     if (introPlaying) {
@@ -29,7 +33,7 @@ export default function App() {
   return (
     <div className="relative min-h-screen overflow-x-hidden">
       {/* Aerodynamic Love Jet Opening Animation */}
-      <LoveJetIntro onComplete={() => setIntroPlaying(false)} />
+      {introPlaying && <LoveJetIntro onComplete={() => setIntroPlaying(false)} />}
 
       {/* Background layer */}
       <PetalRain />
