@@ -7,9 +7,7 @@
     "dev": "vite",
     "build": "vite build",
     "lint": "eslint .",
-    "preview": "vite preview",
-    "install-all": "npm install && npm install -D tailwindcss@3 postcss autoprefixer && npm install framer-motion react-router-dom @heroicons/react",
-    "tailwind-init": "npx tailwindcss init -p"
+    "preview": "vite preview"
   },
   "dependencies": {
     "@heroicons/react": "^2.2.0",
