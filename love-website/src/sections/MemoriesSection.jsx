@@ -119,7 +119,7 @@ export default function MemoriesSection() {
               borderColor: "rgba(244,63,94,0.25)"
             }}
             transition={{ duration: 0.3 }}
-            className="bg-gradient-to-br from-rose-grad-start to-rose-grad-end border border-pink-200/50 rounded-2xl p-8 text-center flex flex-col items-center justify-center min-h-[220px] transition-colors duration-300"
+            className="bg-gradient-to-br from-rose-grad-start to-rose-grad-end border border-pink-200/50 rounded-2xl p-8 text-left flex flex-col items-start justify-center min-h-[220px] transition-colors duration-300"
           >
             <div className="mb-4 select-none">
               {mem.icon}
