@@ -12,6 +12,11 @@ export default function PetalRain() {
       const duration = Math.random() * (18 - 7) + 7; // Duration between 7s and 18s
       const delay = Math.random() * 12; // Delay up to 12s
       
+      // Cinematic depth-of-field blur: small background petals and large foreground petals are blurred.
+      const blur = size < 11 ? '1.5px' : size > 21 ? '0.8px' : '0px';
+      // 3D shadow on larger petals
+      const shadow = size > 16 ? '0 2px 6px rgba(224, 96, 128, 0.12)' : 'none';
+
       return {
         id: index,
         style: {
@@ -22,6 +27,9 @@ export default function PetalRain() {
           '--duration': `${duration}s`,
           animationDelay: `${delay}s`,
           borderRadius: '150% 0 150% 0',
+          filter: `blur(${blur})`,
+          boxShadow: shadow,
+          transform: `rotate(${Math.random() * 360}deg)`
         }
       };
     });

@@ -1,28 +1,60 @@
 import { motion } from 'framer-motion';
 import FlowerCrown from '../components/FlowerCrown';
 
+const titleContainer = {
+  hidden: { opacity: 0 },
+  visible: {
+    opacity: 1,
+    transition: {
+      staggerChildren: 0.2,
+      delayChildren: 0.3
+    }
+  }
+};
+
+const wordVariants = {
+  hidden: { opacity: 0, y: 30, filter: 'blur(10px)', scale: 0.9 },
+  visible: { 
+    opacity: 1, 
+    y: 0, 
+    filter: 'blur(0px)',
+    scale: 1,
+    transition: { duration: 1, ease: [0.16, 1, 0.3, 1] } 
+  }
+};
+
 export default function Hero() {
   return (
     <section className="relative min-h-[calc(100vh-64px)] flex flex-col items-center justify-between py-16 px-6 bg-[radial-gradient(ellipse_at_50%_0%,#ffe0ea_0%,#fff0f3_60%)] overflow-hidden">
-      <div className="flex-1 flex flex-col items-center justify-center gap-8">
+      {/* Decorative background grid vector lines */}
+      <svg className="absolute inset-0 w-full h-full pointer-events-none opacity-20" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+        <defs>
+          <pattern id="heroGrid" width="80" height="80" patternUnits="userSpaceOnUse">
+            <path d="M 80 0 L 0 0 0 80" fill="none" stroke="rgba(224, 96, 128, 0.15)" strokeWidth="0.5" />
+          </pattern>
+        </defs>
+        <rect width="100%" height="100%" fill="url(#heroGrid)" />
+      </svg>
+
+      <div className="flex-1 flex flex-col items-center justify-center gap-10 z-10">
         <FlowerCrown />
         
         <div className="text-center select-none">
           <motion.h1 
-            initial={{ opacity: 0, y: 30 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8, delay: 0.4, ease: 'easeOut' }}
-            className="font-cormorant text-[clamp(56px,11vw,104px)] font-light leading-none text-rose-deep"
+            variants={titleContainer}
+            initial="hidden"
+            animate="visible"
+            className="font-cormorant text-[clamp(56px,11vw,104px)] font-light leading-[1.05] text-rose-deep"
           >
-            For <br />
-            <span className="italic font-semibold">My Love</span>
+            <motion.span variants={wordVariants} className="inline-block mr-3">For</motion.span> <br />
+            <motion.span variants={wordVariants} className="inline-block italic font-semibold">My Love</motion.span>
           </motion.h1>
           
           <motion.p 
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8, delay: 0.7, ease: 'easeOut' }}
-            className="font-cormorant italic text-[20px] md:text-[24px] text-rose-medium mt-6"
+            initial={{ opacity: 0, y: 20, filter: 'blur(6px)' }}
+            animate={{ opacity: 1, y: 0, filter: 'blur(0px)' }}
+            transition={{ duration: 1.2, delay: 0.9, ease: [0.16, 1, 0.3, 1] }}
+            className="font-cormorant italic text-[20px] md:text-[24px] text-rose-medium mt-8"
           >
             A garden of words, grown just for you
           </motion.p>
@@ -30,10 +62,10 @@ export default function Hero() {
       </div>
 
       <motion.button 
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ delay: 1.2 }}
-        className="flex flex-col items-center gap-1 select-none animate-pulse-down cursor-pointer focus:outline-none"
+        initial={{ opacity: 0, y: 10 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 1.4, duration: 0.8 }}
+        className="flex flex-col items-center gap-1 select-none animate-pulse-down cursor-pointer focus:outline-none z-10"
         onClick={() => {
           document.getElementById('our-story')?.scrollIntoView({ behavior: 'smooth' });
         }}

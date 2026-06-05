@@ -31,7 +31,7 @@ const cardVariants = {
 
 export default function ReasonsSection() {
   return (
-    <section id="our-story" className="py-16 md:py-24 max-w-6xl mx-auto px-6">
+    <section id="our-story" className="py-16 md:py-24 max-w-6xl mx-auto px-6 relative">
       <SectionDivider label="Why I love you" />
       
       <div className="text-center mb-16 select-none">
@@ -57,15 +57,25 @@ export default function ReasonsSection() {
               key={index}
               variants={cardVariants}
               whileHover={{ 
-                y: -6, 
-                boxShadow: "0 16px 40px rgba(180,60,90,0.12)"
+                y: -8, 
+                scale: 1.02,
+                boxShadow: "0 20px 45px rgba(244,63,94,0.08)",
+                borderColor: "rgba(244,63,94,0.35)"
               }}
-              className="bg-white/75 backdrop-blur-sm border border-pink-200/60 rounded-2xl p-8 flex flex-col justify-between min-h-[200px]"
+              transition={{ type: 'spring', stiffness: 300, damping: 20 }}
+              className="relative bg-white/60 backdrop-blur-md border border-pink-200/40 rounded-2xl p-8 flex flex-col justify-between min-h-[210px] overflow-hidden group transition-colors duration-300"
             >
-              <div className="font-cormorant text-[48px] font-light text-pink-200 leading-none mb-4 select-none">
-                {numStr}
+              {/* Inner glowing card gradient hover background */}
+              <div className="absolute inset-0 bg-gradient-to-tr from-rose-50/20 to-pink-50/10 opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none" />
+              
+              <div className="font-cormorant text-[48px] font-light text-pink-200 group-hover:text-rose-soft/75 leading-none mb-4 select-none flex justify-between items-start transition-colors duration-300">
+                <span>{numStr}</span>
+                <svg className="w-5 h-5 text-rose-soft/20 group-hover:text-rose-medium/60 transition-colors duration-300 fill-none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="1.5" aria-hidden="true">
+                  <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" />
+                </svg>
               </div>
-              <p className="font-cormorant text-[18px] text-[#7a2038] leading-[1.7]">
+              
+              <p className="font-cormorant text-[19px] text-[#7a2038] leading-[1.7] z-10">
                 {reason}
               </p>
             </motion.li>
