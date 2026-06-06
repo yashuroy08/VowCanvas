@@ -25,8 +25,6 @@ function autoBind(instance) {
 }
 
 const DEFAULT_FONT = 'bold 30px Figtree';
-// Figtree is not guaranteed to be available on the host page, so the component
-// loads it on demand whenever the default font is used.
 const DEFAULT_FONT_URL = 'https://fonts.googleapis.com/css2?family=Figtree:wght@400;700&display=swap';
 
 function deriveFontFamilyFromUrl(url) {
@@ -79,23 +77,15 @@ async function loadCustomFont(fontUrl) {
   return isStylesheet ? loadFontFromStylesheet(fontUrl) : loadFontFromFile(fontUrl);
 }
 
-// Loads `fontUrl` (a stylesheet such as a Google Fonts URL, or a direct font
-// file) and returns a canvas-ready font string that keeps the size/weight from
-// `font` but swaps in the freshly loaded family. Falls back to `font` on error.
 async function resolveFont(font, fontUrl) {
-  // Use the bundled Figtree stylesheet when the caller relies on the default
-  // font, otherwise honor the explicit `fontUrl`.
   const effectiveUrl = fontUrl || (font === DEFAULT_FONT ? DEFAULT_FONT_URL : null);
   if (!effectiveUrl) {
-    // A custom family was supplied without a URL – make sure it is ready (in
-    // case the host page declares it) before we draw it to the canvas,
-    // otherwise the first paint silently falls back to a system font.
     if (document.fonts && document.fonts.load) {
       try {
         await document.fonts.load(font);
         await document.fonts.ready;
       } catch {
-        // Ignore – fall back to whatever the browser provides.
+        // Ignore
       }
     }
     return font;
@@ -109,7 +99,7 @@ async function resolveFont(font, fontUrl) {
       try {
         await document.fonts.load(resolved);
       } catch {
-        // Ignore – we still attempt to render with the requested font.
+        // Ignore
       }
     }
     return resolved;
@@ -152,7 +142,17 @@ class Title {
     this.renderer = renderer;
     this.text = text;
     this.textColor = textColor;
-    this.font = font;
+
+    // Adjust font size on small viewports
+    let adjustedFont = font;
+    const canvasWidth = gl.canvas.clientWidth || window.innerWidth;
+    if (canvasWidth < 500) {
+      adjustedFont = font.replace(/(\d+)px/, (match, p1) => {
+        const size = parseInt(p1, 10);
+        return `${Math.max(14, Math.round(size * 0.55))}px`;
+      });
+    }
+    this.font = adjustedFont;
     this.createMesh();
   }
   createMesh() {
@@ -185,7 +185,7 @@ class Title {
     });
     this.mesh = new Mesh(this.gl, { geometry, program });
     const aspect = width / height;
-    const textHeight = this.plane.scale.y * 0.15;
+    const textHeight = this.plane.scale.y * (this.gl.canvas.clientWidth < 500 ? 0.11 : 0.15);
     const textWidth = textHeight * aspect;
     this.mesh.scale.set(textWidth, textHeight, 1);
     this.mesh.position.y = -this.plane.scale.y * 0.5 - textHeight * 0.5 - 0.05;
@@ -234,6 +234,13 @@ class Media {
     const texture = new Texture(this.gl, {
       generateMipmaps: true
     });
+
+    // 1x1 transparent canvas placeholder to prevent WebGL compile/texture binding crash
+    const placeholder = document.createElement('canvas');
+    placeholder.width = 1;
+    placeholder.height = 1;
+    texture.image = placeholder;
+
     this.program = new Program(this.gl, {
       depthTest: false,
       depthWrite: false,
@@ -279,9 +286,7 @@ class Media {
           
           float d = roundedBoxSDF(vUv - 0.5, vec2(0.5 - uBorderRadius), uBorderRadius);
           
-          // Smooth antialiasing for edges
-          float edgeSmooth = 0.002;
-          float alpha = 1.0 - smoothstep(-edgeSmooth, edgeSmooth, d);
+          float alpha = 1.0 - smoothstep(-0.002, 0.002, d);
           
           gl_FragColor = vec4(color.rgb, alpha);
         }
@@ -289,20 +294,26 @@ class Media {
       uniforms: {
         tMap: { value: texture },
         uPlaneSizes: { value: [0, 0] },
-        uImageSizes: { value: [0, 0] },
+        uImageSizes: { value: [1, 1] },
         uSpeed: { value: 0 },
         uTime: { value: 100 * Math.random() },
         uBorderRadius: { value: this.borderRadius }
       },
       transparent: true
     });
-    const img = new Image();
-    img.crossOrigin = 'anonymous';
-    img.src = this.image;
-    img.onload = () => {
-      texture.image = img;
-      this.program.uniforms.uImageSizes.value = [img.naturalWidth, img.naturalHeight];
-    };
+
+    if (this.image) {
+      const img = new Image();
+      img.crossOrigin = 'anonymous';
+      img.src = this.image;
+      img.onload = () => {
+        texture.image = img;
+        this.program.uniforms.uImageSizes.value = [img.naturalWidth, img.naturalHeight];
+      };
+      img.onerror = () => {
+        console.warn('CircularGallery: failed to load image', this.image);
+      };
+    }
   }
   createMesh() {
     this.plane = new Mesh(this.gl, {
@@ -371,10 +382,19 @@ class Media {
       }
     }
     this.scale = this.screen.height / 1500;
-    this.plane.scale.y = (this.viewport.height * (900 * this.scale)) / this.screen.height;
-    this.plane.scale.x = (this.viewport.width * (700 * this.scale)) / this.screen.width;
+
+    // Scale down items on mobile preview viewports
+    let mobileScaleFactor = 1.0;
+    if (this.screen.width < 500) {
+      mobileScaleFactor = 0.55;
+    } else if (this.screen.width < 768) {
+      mobileScaleFactor = 0.75;
+    }
+
+    this.plane.scale.y = (this.viewport.height * (900 * this.scale * mobileScaleFactor)) / this.screen.height;
+    this.plane.scale.x = (this.viewport.width * (700 * this.scale * mobileScaleFactor)) / this.screen.width;
     this.plane.program.uniforms.uPlaneSizes.value = [this.plane.scale.x, this.plane.scale.y];
-    this.padding = 2;
+    this.padding = 2 * mobileScaleFactor;
     this.width = this.plane.scale.x + this.padding;
     this.widthTotal = this.width * this.length;
     this.x = this.width * this.index;
@@ -468,6 +488,30 @@ class App {
       });
     });
   }
+  updateParams({ items, bend, textColor, borderRadius, font, scrollSpeed, scrollEase }) {
+    this.scrollSpeed = scrollSpeed;
+    this.scroll.ease = scrollEase;
+    
+    // Destroy and remove old medias meshes & textures
+    if (this.medias) {
+      this.medias.forEach(media => {
+        if (media.plane) media.plane.setParent(null);
+        if (media.program && media.program.uniforms.tMap && media.program.uniforms.tMap.value) {
+          media.program.uniforms.tMap.value.destroy();
+        }
+        if (media.title && media.title.mesh) {
+          media.title.mesh.setParent(null);
+          if (media.title.mesh.program && media.title.mesh.program.uniforms.tMap && media.title.mesh.program.uniforms.tMap.value) {
+            media.title.mesh.program.uniforms.tMap.value.destroy();
+          }
+        }
+      });
+    }
+
+    // Recreate medias
+    this.createMedias(items, bend, textColor, borderRadius, font);
+    this.onResize();
+  }
   onTouchDown(e) {
     this.isDown = true;
     this.scroll.position = this.scroll.current;
@@ -496,18 +540,18 @@ class App {
     this.scroll.target = this.scroll.target < 0 ? -item : item;
   }
   onResize() {
-    this.screen = {
-      width: this.container.clientWidth,
-      height: this.container.clientHeight
-    };
-    this.renderer.setSize(this.screen.width, this.screen.height);
+    const width = this.container.clientWidth || 300;
+    const height = this.container.clientHeight || 500;
+    this.screen = { width, height };
+
+    this.renderer.setSize(width, height);
     this.camera.perspective({
-      aspect: this.screen.width / this.screen.height
+      aspect: width / height
     });
     const fov = (this.camera.fov * Math.PI) / 180;
-    const height = 2 * Math.tan(fov / 2) * this.camera.position.z;
-    const width = height * this.camera.aspect;
-    this.viewport = { width, height };
+    const eyeHeight = 2 * Math.tan(fov / 2) * this.camera.position.z;
+    const eyeWidth = eyeHeight * this.camera.aspect;
+    this.viewport = { width: eyeWidth, height: eyeHeight };
     if (this.medias) {
       this.medias.forEach(media => media.onResize({ screen: this.screen, viewport: this.viewport }));
     }
@@ -566,26 +610,51 @@ export default function CircularGallery({
   scrollEase = 0.05
 }) {
   const containerRef = useRef(null);
+  const appRef = useRef(null);
+
   useEffect(() => {
     if (!containerRef.current) return;
-    let app;
     let isMounted = true;
+
     resolveFont(font, fontUrl).then(resolvedFont => {
       if (!isMounted || !containerRef.current) return;
-      app = new App(containerRef.current, {
-        items,
-        bend,
-        textColor,
-        borderRadius,
-        font: resolvedFont,
-        scrollSpeed,
-        scrollEase
-      });
+
+      if (!appRef.current) {
+        appRef.current = new App(containerRef.current, {
+          items,
+          bend,
+          textColor,
+          borderRadius,
+          font: resolvedFont,
+          scrollSpeed,
+          scrollEase
+        });
+      } else {
+        appRef.current.updateParams({
+          items,
+          bend,
+          textColor,
+          borderRadius,
+          font: resolvedFont,
+          scrollSpeed,
+          scrollEase
+        });
+      }
     });
+
     return () => {
       isMounted = false;
-      if (app) app.destroy();
     };
   }, [items, bend, textColor, borderRadius, font, fontUrl, scrollSpeed, scrollEase]);
+
+  useEffect(() => {
+    return () => {
+      if (appRef.current) {
+        appRef.current.destroy();
+        appRef.current = null;
+      }
+    };
+  }, []);
+
   return <div className="circular-gallery" ref={containerRef} />;
 }

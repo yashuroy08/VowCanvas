@@ -8,7 +8,7 @@ export default function SectionDivider({ label }) {
         whileInView={{ width: 80, opacity: 1 }}
         viewport={{ once: true }}
         transition={{ duration: 1.2, ease: "easeOut" }}
-        className="h-[0.5px] bg-gradient-to-r from-transparent to-[#e8a0b0]" 
+        className="h-[0.5px] bg-gradient-to-r from-transparent to-rose-soft/50" 
       />
       <motion.div 
         initial={{ scale: 0.8, opacity: 0 }}
@@ -48,7 +48,7 @@ export default function SectionDivider({ label }) {
         whileInView={{ width: 80, opacity: 1 }}
         viewport={{ once: true }}
         transition={{ duration: 1.2, ease: "easeOut" }}
-        className="h-[0.5px] bg-gradient-to-l from-transparent to-[#e8a0b0]" 
+        className="h-[0.5px] bg-gradient-to-l from-transparent to-rose-soft/50" 
       />
     </div>
   );

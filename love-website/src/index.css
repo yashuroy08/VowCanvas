@@ -2,7 +2,17 @@
 @tailwind components;
 @tailwind utilities;
 
+@media (pointer: fine) {
+  html.custom-cursor-enabled * {
+    cursor: none !important;
+  }
+}
+
 @layer base {
+  body {
+    overflow-x: hidden;
+  }
+  
   :root {
     --rose-blush: #fff0f3;
     --rose-deep: #8b1a3a;
@@ -18,9 +28,55 @@
     --rose-text-muted: #b06070;
   }
 
+  html[data-theme="midnight"] {
+    --rose-blush: #090306;
+    --rose-deep: #ffeef2;
+    --rose-medium: #f2a2b7;
+    --rose-soft: #ff758f;
+    --rose-border: #2a0b18;
+    --rose-dark: #190510;
+    --rose-dark-accent: #ff4d6d;
+    --rose-medium-accent: #c9184a;
+    --rose-light-accent: #3d0c24;
+    --rose-gradient-start: #14040c;
+    --rose-gradient-end: #070104;
+    --rose-text-muted: #d09ea9;
+  }
+
+  html[data-theme="lavender"] {
+    --rose-blush: #f6f1fb;
+    --rose-deep: #3e1b6f;
+    --rose-medium: #7f52c9;
+    --rose-soft: #a88be8;
+    --rose-border: #e2d6f5;
+    --rose-dark: #2c1256;
+    --rose-dark-accent: #200a40;
+    --rose-medium-accent: #9264dc;
+    --rose-light-accent: #efe1ff;
+    --rose-gradient-start: #fbf9fe;
+    --rose-gradient-end: #eff3fd;
+    --rose-text-muted: #7f68a4;
+  }
+
+  html[data-theme="sunset"] {
+    --rose-blush: #fffbf7;
+    --rose-deep: #7e2d14;
+    --rose-medium: #cd5a38;
+    --rose-soft: #ec8a6a;
+    --rose-border: #ffedd5;
+    --rose-dark: #65200b;
+    --rose-dark-accent: #451408;
+    --rose-medium-accent: #b6530b;
+    --rose-light-accent: #ffedd5;
+    --rose-gradient-start: #fffaf0;
+    --rose-gradient-end: #ffedd5;
+    --rose-text-muted: #9e3614;
+  }
+
   body {
     background-color: var(--rose-blush);
     color: var(--rose-deep);
+    transition: background-color 0.5s cubic-bezier(0.4, 0, 0.2, 1), color 0.5s cubic-bezier(0.4, 0, 0.2, 1);
     @apply font-lato;
   }
   
@@ -29,7 +85,69 @@
   }
 }
 
-/* Custom utility for petal falling animation dynamic duration/delay */
+/* Utility: Hide scrollbars but keep scrolling */
+.scrollbar-hide {
+  scrollbar-width: none; /* Firefox */
+  -ms-overflow-style: none; /* IE/Edge */
+}
+.scrollbar-hide::-webkit-scrollbar {
+  display: none; /* Chrome, Safari, Opera */
+}
+
+/* Hide scrollbars globally for the builder page */
+.builder-page,
+.builder-page *  {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+.builder-page::-webkit-scrollbar,
+.builder-page *::-webkit-scrollbar {
+  display: none;
+}
+
+/* Hide scrollbars on iframes in the builder */
+.builder-page iframe {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+/* Hide scrollbars when the app is rendered inside a preview iframe.
+   App.jsx sets this class on <html> when activeStep param is present. */
+html.preview-mode,
+html.preview-mode body,
+html.preview-mode * {
+  scrollbar-width: none !important;
+  -ms-overflow-style: none !important;
+}
+html.preview-mode::-webkit-scrollbar,
+html.preview-mode body::-webkit-scrollbar,
+html.preview-mode *::-webkit-scrollbar {
+  display: none !important;
+}
+
+/* Custom utility for petal falling animation dynamic duration/delay with sway */
 .petal {
   will-change: transform, opacity;
 }
+
+@keyframes fallSway {
+  0% {
+    transform: translateY(-5vh) translateX(0) rotate(0deg);
+    opacity: 0;
+  }
+  10% {
+    opacity: 0.8;
+  }
+  90% {
+    opacity: 0.6;
+  }
+  100% {
+    transform: translateY(105vh) translateX(var(--sway-distance, 40px)) rotate(var(--sway-rotation, 360deg));
+    opacity: 0;
+  }
+}
+
+.animate-fall-sway {
+  animation: fallSway var(--duration, 12s) linear infinite;
+}
+
