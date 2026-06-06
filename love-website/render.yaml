@@ -2,7 +2,7 @@ services:
   - type: web
     name: vowcanvas-backend
     env: docker
-    rootDir: love-website/backend
+    rootDir: love-website
     plan: free
     envVars:
       - key: SPRING_PROFILES_ACTIVE

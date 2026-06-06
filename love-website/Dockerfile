@@ -1,9 +1,10 @@
 # Build stage
 FROM maven:3.9.6-eclipse-temurin-17-alpine AS build
 WORKDIR /app
-COPY pom.xml .
+# Copy the backend pom and source code into the build container
+COPY backend/pom.xml .
 RUN mvn dependency:go-offline -B
-COPY src ./src
+COPY backend/src ./src
 RUN mvn clean package -DskipTests
 
 # Run stage
