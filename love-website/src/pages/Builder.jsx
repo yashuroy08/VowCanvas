@@ -84,6 +84,7 @@ export default function Builder() {
     const data = new FormData();
     data.append('image', file);
     data.append('key', IMGBB_API_KEY);
+    data.append('expiration', 86400); // Auto delete after 1 day
 
     const res = await fetch('https://api.imgbb.com/1/upload', {
       method: 'POST',
@@ -194,7 +195,7 @@ export default function Builder() {
       </nav>
 
       {/* Main Workspace Layout */}
-      <div className="flex-grow max-w-[1500px] w-full mx-auto px-3 md:px-6 py-4 md:py-8 flex flex-col md:flex-row gap-4 md:gap-8 items-start relative h-[calc(100vh-64px)]">
+      <div className="flex-grow max-w-[1500px] w-full mx-auto px-1 md:px-6 py-2 md:py-8 flex flex-col md:flex-row gap-4 md:gap-8 items-start relative h-[calc(100vh-64px)]">
         
         {/* Left-most Column: Stepper Indicators (Desktop Only) */}
         <div className="hidden lg:flex flex-col gap-6 w-56 sticky top-24 shrink-0 select-none">
@@ -265,7 +266,7 @@ export default function Builder() {
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -15 }}
               transition={{ duration: 0.2, ease: [0.23, 1, 0.32, 1] }}
-              className="bg-white/[0.02] border border-white/[0.08] backdrop-blur-md rounded-2xl p-4 md:p-8 relative"
+              className="bg-transparent md:bg-white/[0.02] md:border md:border-white/[0.08] backdrop-blur-md rounded-2xl p-1 md:p-8 relative"
             >
               <h2 className="text-2xl font-semibold mb-6 text-white" style={{ fontFamily: 'Outfit, sans-serif' }}>
                 {STEPS[activeStep].label.split('. ')[1]}

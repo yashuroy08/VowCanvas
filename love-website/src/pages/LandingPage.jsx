@@ -112,7 +112,7 @@ export default function LandingPage() {
             initial={{ opacity: 0, y: 15 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ type: 'spring', stiffness: 300, damping: 20, delay: 0.25 }}
-            className="mt-8 p-4 rounded-2xl bg-white/[0.02] border border-white/[0.06] w-full max-w-md"
+            className="mt-8 p-3 md:p-4 rounded-2xl bg-white/[0.02] border border-white/[0.06] w-full max-w-md"
           >
             <span className="text-[11px] font-bold tracking-wider uppercase text-white/45 block mb-3">Live Customizer Sandbox</span>
             <div className="space-y-3">
@@ -169,14 +169,13 @@ export default function LandingPage() {
           </motion.div>
         </div>
 
-        {/* Right Column - Interactive UI Demo Mockup */}
         <motion.div 
           initial={{ opacity: 0, scale: 0.96, y: 30 }}
           animate={{ opacity: 1, scale: 1, y: 0 }}
           transition={{ type: 'spring', stiffness: 260, damping: 24, delay: 0.15 }}
           className="w-full lg:w-[45%] mt-12 lg:mt-0 relative z-10"
         >
-          <div className="relative w-full aspect-[4/5] bg-white/[0.01] border border-white/10 rounded-[32px] p-4 pt-12 shadow-2xl overflow-hidden backdrop-blur-sm">
+          <div className="relative w-full aspect-[4/5] bg-white/[0.01] border border-white/10 rounded-[32px] p-2 md:p-4 pt-10 md:pt-12 shadow-2xl overflow-hidden backdrop-blur-sm">
             {/* Browser Chrome Controls */}
             <div className="absolute top-4 left-5 flex gap-1.5">
               <div className="w-2.5 h-2.5 rounded-full bg-red-500/60" />
