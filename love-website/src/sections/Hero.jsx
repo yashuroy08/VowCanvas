@@ -151,16 +151,21 @@ export default function Hero({ startAnimation, onNext }) {
 
       <MagneticButton className="z-10">
         <motion.button 
-          initial={{ opacity: 0, y: 10 }}
-          animate={startAnimation ? { opacity: 1, y: 0 } : { opacity: 0, y: 10 }}
+          initial={{ opacity: 0, y: 15 }}
+          animate={startAnimation ? { opacity: 1, y: 0 } : { opacity: 0, y: 15 }}
           transition={{ delay: 1.4, duration: 0.8 }}
-          className="flex flex-col items-center gap-1 py-4 px-6 select-none animate-pulse-down cursor-pointer focus:outline-none"
+          className="relative flex items-center justify-center gap-3 px-8 py-4 bg-rose-deep text-rose-blush rounded-full shadow-lg hover:shadow-xl hover:-translate-y-0.5 active:scale-[0.97] cursor-pointer focus:outline-none transition-all duration-[160ms] ease-[cubic-bezier(0.23,1,0.32,1)] group"
           onClick={onNext}
           aria-label="Continue to Our Story"
         >
-          <span className="font-lato text-[10px] tracking-[4px] uppercase text-rose-soft">
-            ↓ begin ↓
+          {/* Subtle pulse ring behind button */}
+          <div className="absolute inset-0 rounded-full border border-rose-deep/50 animate-ping opacity-20 group-hover:opacity-0" style={{ animationDuration: '3s' }}></div>
+          <span className="font-lato text-[12px] tracking-[4px] uppercase font-semibold">
+            Begin
           </span>
+          <svg className="w-4 h-4 fill-current animate-bounce mt-1" viewBox="0 0 24 24">
+            <path d="M12 16l-6-6h4V4h4v6h4l-6 6z" />
+          </svg>
         </motion.button>
       </MagneticButton>
     </section>

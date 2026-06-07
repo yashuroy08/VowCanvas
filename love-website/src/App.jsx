@@ -1,6 +1,5 @@
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import PetalRain from './components/PetalRain';
 import CustomCursor from './components/CustomCursor';
 import Hero from './sections/Hero';
 import ReasonsSection from './sections/ReasonsSection';
@@ -11,10 +10,11 @@ import SurpriseSection from './sections/SurpriseSection';
 import Footer from './sections/Footer';
 import HeartClickEffect from './components/HeartClickEffect';
 import MouseGlowEffect from './components/MouseGlowEffect';
-import LoveJetIntro from './components/LoveJetIntro';
+import PremiumPreloader from './components/PremiumPreloader';
 import SpotifyPlayer from './components/SpotifyPlayer';
 import LinkedListConnector from './components/LinkedListConnector';
 import SaaSSidebarNav from './components/SaaSSidebarNav';
+import ExpiredLink from './components/ExpiredLink';
 import useDataStore, { DEFAULT_DATA } from './store/useDataStore';
 import LZString from 'lz-string';
 
@@ -85,6 +85,7 @@ export default function App() {
       : true;
   });
 
+  const [isExpired, setIsExpired] = useState(false);
   const [theme, setTheme] = useState(() => {
     if (typeof window !== 'undefined') {
       return localStorage.getItem('love-theme') || 'classic';
@@ -111,6 +112,16 @@ export default function App() {
         const decompressed = LZString.decompressFromEncodedURIComponent(encodedData);
         if (decompressed) {
           const parsed = JSON.parse(decompressed);
+          
+          // Expiration Check (24 hours = 86,400,000 ms)
+          if (parsed.createdAt) {
+            const age = Date.now() - parsed.createdAt;
+            if (age > 24 * 60 * 60 * 1000) {
+              setIsExpired(true);
+              return;
+            }
+          }
+
           setData({ ...DEFAULT_DATA, ...parsed });
           if (parsed.styleTheme) {
             setTheme(parsed.styleTheme);
@@ -140,7 +151,7 @@ export default function App() {
 
   // Synchronize builder active section in preview mode
   useEffect(() => {
-    if (introPlaying) return;
+    if (introPlaying || isExpired) return;
     const urlParams = new URLSearchParams(window.location.search);
     const stepParam = urlParams.get('activeStep');
     if (stepParam !== null) {
@@ -161,7 +172,7 @@ export default function App() {
         }
       }
     }
-  }, [introPlaying]);
+  }, [introPlaying, isExpired]);
 
   useEffect(() => {
     document.documentElement.setAttribute('data-theme', theme);
@@ -191,7 +202,7 @@ export default function App() {
 
   // Intersection Observer Scroll Spy to track active node
   useEffect(() => {
-    if (introPlaying) return;
+    if (introPlaying || isExpired) return;
 
     const observerOptions = {
       root: null,
@@ -223,7 +234,7 @@ export default function App() {
         if (el) observer.unobserve(el);
       });
     };
-  }, [introPlaying]);
+  }, [introPlaying, isExpired]);
 
   // Spotlight mouse listener
   useEffect(() => {
@@ -287,13 +298,17 @@ export default function App() {
     };
   }, [isPreviewMode]);
 
+  if (isExpired) {
+    return <ExpiredLink />;
+  }
+
   return (
     <div className="relative min-h-screen">
-      {/* Aerodynamic Love Jet Opening Animation */}
-      {introPlaying && <LoveJetIntro onComplete={() => setIntroPlaying(false)} />}
+      {/* Premium Preloader Animation */}
+      {introPlaying && <PremiumPreloader onComplete={() => setIntroPlaying(false)} />}
 
-      {/* Background layer */}
-      <PetalRain />
+      <div className="mesh-gradient" />
+      <div className="noise-overlay" />
       
       {/* Custom cursor element */}
       <CustomCursor />

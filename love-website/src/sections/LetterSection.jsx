@@ -1,64 +1,108 @@
-import { motion } from 'framer-motion';
-import SectionDivider from '../components/SectionDivider';
+import React, { useRef, useState } from 'react';
+import { motion, useInView } from 'framer-motion';
 import MagneticButton from '../components/MagneticButton';
 import useDataStore from '../store/useDataStore';
 
 export default function LetterSection({ onNext }) {
   const letter = useDataStore((state) => state.data.letter);
+  const memories = useDataStore((state) => state.data.memories);
+  const containerRef = useRef(null);
+  
+  // Use in-view to trigger animations when section is reached
+  const isInView = useInView(containerRef, { once: true, margin: "-100px" });
+
+  const paragraphs = letter.split('\n\n').filter(Boolean);
+
+  // Take the first memory image to use as a subtle parallax background
+  const bgImage = memories && memories.length > 0 ? memories[0].image : null;
 
   return (
-    <section id="letter" className="py-10 md:py-24 max-w-4xl mx-auto px-4 md:px-6 relative w-full">
-      <SectionDivider label="From my heart" />
+    <section id="letter" ref={containerRef} className="relative w-full min-h-screen flex items-center justify-center py-16 md:py-24 overflow-hidden">
       
-      <motion.div
-        initial={{ opacity: 0, scale: 0.96, filter: 'blur(12px)' }}
-        whileInView={{ opacity: 1, scale: 1, filter: 'blur(0px)' }}
-        viewport={{ once: true, margin: "-120px" }}
-        transition={{ duration: 1.4, ease: [0.16, 1, 0.3, 1] }}
-        className="relative bg-rose-blush/60 border border-rose-border/40 rounded-3xl p-5 md:p-14 shadow-sm mt-8 overflow-hidden transition-colors duration-500"
-      >
-        {/* Oversized Quote SVG */}
-        <svg className="absolute -top-2 -left-2 w-20 h-20 md:w-32 md:h-32 text-rose-light-accent opacity-35 select-none z-0 fill-current" viewBox="0 0 24 24" aria-hidden="true">
-          <path d="M14.017 21v-7.391c0-5.704 3.731-9.57 8.983-10.609l.995 2.151c-2.432.917-3.995 3.638-3.995 5.849h4v10h-9.983zm-14.017 0v-7.391c0-5.704 3.748-9.57 9-10.609l.996 2.151c-2.433.917-3.996 3.638-3.996 5.849h3.983v10h-9.983z" />
-        </svg>
+      {/* Subtle Background Image with Parallax & Blur */}
+      {bgImage && (
+        <motion.div 
+          className="absolute inset-0 w-full h-full z-0 pointer-events-none overflow-hidden"
+          initial={{ opacity: 0, scale: 1.1 }}
+          animate={isInView ? { opacity: 0.15, scale: 1 } : {}}
+          transition={{ duration: 2, ease: "easeOut" }}
+        >
+          <img 
+            src={bgImage} 
+            alt="Memory Background" 
+            className="w-full h-full object-cover mix-blend-multiply blur-sm"
+          />
+        </motion.div>
+      )}
+
+      {/* Foreground Container */}
+      <div className="relative z-10 w-full max-w-4xl mx-auto px-4 md:px-8">
         
-        <blockquote className="relative z-10 font-cormorant italic text-[15px] md:text-[20px] lg:text-[22px] font-light text-rose-dark-accent leading-[1.8] md:leading-[2.1] whitespace-pre-line">
-          {letter}
-        </blockquote>
-
-        <div className="flex flex-col items-end mt-10 relative z-10 select-none">
-          <div className="font-cormorant italic text-[15px] md:text-[18px] lg:text-[20px] text-rose-medium-accent">
-            — Yours, always
-          </div>
-          {/* Cursive animated heart drawing flourish */}
-          <svg className="w-24 h-8 text-rose-medium-accent/50 mt-1" viewBox="0 0 120 30" fill="none" stroke="currentColor" strokeWidth="1.5">
-            <motion.path 
-              initial={{ pathLength: 0 }}
-              whileInView={{ pathLength: 1 }}
-              viewport={{ once: true }}
-              transition={{ duration: 1.8, delay: 0.6, ease: 'easeInOut' }}
-              d="M10 15 C 35 15, 40 5, 55 15 C 70 25, 80 5, 90 15 C 95 20, 100 20, 110 15"
-              strokeLinecap="round"
-            />
-          </svg>
-        </div>
-      </motion.div>
-
-      {/* Next Chapter Button */}
-      <div className="flex justify-center mt-8 md:mt-12 mb-2 select-none w-full">
-        <MagneticButton>
-          <motion.button
-            whileHover={{ scale: 1.05, y: -2 }}
-            whileTap={{ scale: 0.95 }}
-            onClick={onNext}
-            className="flex items-center gap-2.5 font-lato text-[10px] tracking-[3px] uppercase px-7 py-4 bg-rose-medium hover:bg-rose-deep text-rose-light-accent rounded-full shadow-md hover:shadow-lg transition-all duration-300 focus:outline-none"
+        <motion.div 
+          className="relative bg-white/60 backdrop-blur-xl border border-white/80 rounded-3xl p-8 md:p-14 shadow-[0_20px_40px_-15px_rgba(0,0,0,0.05)] overflow-hidden"
+          initial={{ y: 40, opacity: 0 }}
+          animate={isInView ? { y: 0, opacity: 1 } : {}}
+          transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
+        >
+          
+          {/* Decorative Quote Icon */}
+          <motion.div
+            initial={{ scale: 0.8, opacity: 0, rotate: -10 }}
+            animate={isInView ? { scale: 1, opacity: 0.2, rotate: 0 } : {}}
+            transition={{ duration: 0.7, delay: 0.2 }}
           >
-            <span>See our memories</span>
-            <svg className="w-4 h-4 fill-current" viewBox="0 0 24 24">
-              <path d="M5 13h11.86l-5.43 5.43 1.42 1.42L21.14 12l-8.29-8.29-1.42 1.42 5.43 5.43H5v2z" />
+            <svg className="absolute -top-6 -left-6 w-28 h-28 md:w-40 md:h-40 text-rose-medium fill-current" viewBox="0 0 24 24" aria-hidden="true">
+              <path d="M14.017 21v-7.391c0-5.704 3.731-9.57 8.983-10.609l.995 2.151c-2.432.917-3.995 3.638-3.995 5.849h4v10h-9.983zm-14.017 0v-7.391c0-5.704 3.748-9.57 9-10.609l.996 2.151c-2.433.917-3.996 3.638-3.996 5.849h3.983v10h-9.983z" />
             </svg>
-          </motion.button>
-        </MagneticButton>
+          </motion.div>
+          
+          {/* Letter Text */}
+          <blockquote className="relative z-10 font-cormorant italic text-[19px] md:text-[24px] lg:text-[28px] font-light text-rose-dark-accent leading-[1.85] md:leading-[2.1]">
+            {paragraphs.map((p, i) => (
+              <motion.p 
+                key={i} 
+                className="mb-6 last:mb-0"
+                initial={{ opacity: 0, y: 15, filter: 'blur(4px)' }}
+                animate={isInView ? { opacity: 1, y: 0, filter: 'blur(0px)' } : {}}
+                transition={{ duration: 0.8, delay: 0.3 + (i * 0.15), ease: [0.16, 1, 0.3, 1] }}
+              >
+                {p}
+              </motion.p>
+            ))}
+          </blockquote>
+
+          {/* Signature & Next Button */}
+          <div className="flex flex-col items-end mt-12 relative z-10">
+            <motion.div 
+              className="font-cormorant italic text-[20px] md:text-[24px] text-rose-medium"
+              initial={{ opacity: 0, x: 20 }}
+              animate={isInView ? { opacity: 1, x: 0 } : {}}
+              transition={{ duration: 0.8, delay: 0.3 + (paragraphs.length * 0.15) }}
+            >
+              Yours, always
+            </motion.div>
+            
+            <motion.div 
+              className="mt-10"
+              initial={{ opacity: 0, scale: 0.9 }}
+              animate={isInView ? { opacity: 1, scale: 1 } : {}}
+              transition={{ duration: 0.5, delay: 0.5 + (paragraphs.length * 0.15) }}
+            >
+              <MagneticButton>
+                <button
+                  onClick={onNext}
+                  className="flex items-center gap-2.5 font-lato text-[11px] tracking-[3px] uppercase px-8 py-4 bg-rose-deep text-rose-blush rounded-full shadow-md hover:shadow-lg hover:-translate-y-0.5 active:scale-[0.97] transition-all duration-[160ms] ease-[cubic-bezier(0.23,1,0.32,1)] focus:outline-none backdrop-blur-sm"
+                >
+                  <span>See our memories</span>
+                  <svg className="w-4 h-4 fill-current" viewBox="0 0 24 24">
+                    <path d="M5 13h11.86l-5.43 5.43 1.42 1.42L21.14 12l-8.29-8.29-1.42 1.42 5.43 5.43H5v2z" />
+                  </svg>
+                </button>
+              </MagneticButton>
+            </motion.div>
+          </div>
+          
+        </motion.div>
       </div>
     </section>
   );

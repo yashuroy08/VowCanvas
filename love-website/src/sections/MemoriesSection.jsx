@@ -3,9 +3,11 @@ import { motion } from 'framer-motion';
 import SectionDivider from '../components/SectionDivider';
 import MagneticButton from '../components/MagneticButton';
 import useDataStore from '../store/useDataStore';
+import MemoryVault from '../components/MemoryVault';
+import BentoGallery from '../components/BentoGallery';
 import CircularGallery from '../components/CircularGallery';
 import CylinderGallery from '../components/CylinderGallery';
-import BentoGallery from '../components/BentoGallery';
+import DomeGallery from '../components/DomeGallery';
 
 const THEME_TEXT_COLORS = {
   classic: '#8b1a3a',
@@ -33,7 +35,7 @@ export default function MemoriesSection({ theme, onNext }) {
   return (
     <section 
       id="memories" 
-      className="min-h-screen w-full flex flex-col justify-between py-12 overflow-hidden select-none relative bg-transparent scroll-mt-16"
+      className={`min-h-screen w-full flex flex-col justify-between py-12 select-none relative bg-transparent scroll-mt-16 ${gridStyle !== 'circular' ? '' : 'overflow-hidden'}`}
     >
       {/* Header */}
       <div className="max-w-4xl mx-auto px-6 w-full flex-shrink-0 z-10">
@@ -45,42 +47,29 @@ export default function MemoriesSection({ theme, onNext }) {
           </h2>
           <p className="font-cormorant italic text-[17px] md:text-[19px] text-rose-medium mt-3">
             {gridStyle === 'circular' && "Swipe or scroll to browse the curved ribbon of our memories."}
-            {gridStyle === 'cylinder' && "Scroll up and down to rotate the cylinder wheel of our moments."}
             {gridStyle === 'bento' && "Tap any grid item below to expand and view the full details."}
+            {gridStyle === 'marquee' && "A cinematic, endless scroll of our most cherished moments."}
+            {gridStyle === 'dome' && "Drag to explore our memories in an immersive 3D space."}
           </p>
         </div>
       </div>
 
       {/* Dynamic Gallery Viewport Selection */}
-      <div className="flex-grow w-full z-10 mt-8 mb-6">
+      <div className="flex-grow w-full z-10 mt-8 mb-6 overflow-hidden">
         {gridStyle === 'circular' && (
-          <div className="h-[350px] sm:h-[450px] md:h-[550px] w-full relative overflow-hidden">
-            <CircularGallery 
-              items={galleryItems}
-              bend={3}
-              textColor={textColor}
-              borderRadius={0.05}
-              scrollEase={0.03}
-              scrollSpeed={2.2}
-              font="bold 28px Outfit"
-              fontUrl="https://fonts.googleapis.com/css2?family=Outfit:wght@700&display=swap"
-            />
-          </div>
-        )}
-
-        {gridStyle === 'cylinder' && (
-          <CylinderGallery 
+          <CircularGallery 
             items={galleryItems} 
-            theme={theme} 
+            bend={3}
+            scrollEase={0.02}
+            borderRadius={0.05}
           />
         )}
-
-        {gridStyle === 'bento' && (
-          <BentoGallery 
-            items={galleryItems} 
-            theme={theme} 
-          />
-        )}
+        {gridStyle === 'bento' && <BentoGallery items={galleryItems} theme={theme} />}
+        {gridStyle === 'marquee' && <MemoryVault items={galleryItems} />}
+        {gridStyle === 'dome' && <DomeGallery items={galleryItems} />}
+        
+        {/* Fallback/Legacy */}
+        {!['circular', 'bento', 'marquee', 'dome'].includes(gridStyle) && <MemoryVault items={galleryItems} />}
       </div>
 
       {/* Next Chapter Button */}

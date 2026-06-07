@@ -2,6 +2,7 @@ import { motion } from 'framer-motion';
 import SectionDivider from '../components/SectionDivider';
 import MagneticButton from '../components/MagneticButton';
 import useDataStore from '../store/useDataStore';
+import ScratchCard from '../components/ScratchCard';
 
 const listVariants = {
   hidden: {},
@@ -42,27 +43,39 @@ export default function PromisesSection({ onNext }) {
         viewport={{ once: true }}
         className="flex flex-col"
       >
-        {promises.map((promise, index) => (
-          <motion.li
-            key={index}
-            variants={itemVariants}
-            className={`flex items-start gap-4 md:gap-5 py-3.5 md:py-5 group ${
-              index === promises.length - 1 ? '' : 'border-b border-rose-border/60'
-            }`}
-          >
-            <motion.svg 
-              whileHover={{ scale: 1.35, rotate: [0, -10, 10, 0] }}
-              className="w-5 h-5 text-rose-soft group-hover:text-rose-medium fill-current mt-1 flex-shrink-0 transition-colors duration-300" 
-              viewBox="0 0 24 24"
-              aria-hidden="true"
+        {promises.map((promise, index) => {
+          const content = (
+            <>
+              <motion.svg 
+                whileHover={{ scale: 1.35, rotate: [0, -10, 10, 0] }}
+                className="w-5 h-5 text-rose-soft group-hover:text-rose-medium fill-current mt-1 flex-shrink-0 transition-colors duration-300" 
+                viewBox="0 0 24 24"
+                aria-hidden="true"
+              >
+                <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" />
+              </motion.svg>
+              
+              <div className="flex-1">
+                <p className="font-cormorant text-[15px] md:text-[21px] text-rose-deep leading-[1.6] group-hover:translate-x-1 transition-transform duration-300">
+                  {promise}
+                </p>
+              </div>
+            </>
+          );
+
+          return (
+            <motion.li
+              key={index}
+              variants={itemVariants}
             >
-              <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" />
-            </motion.svg>
-            <p className="font-cormorant text-[15px] md:text-[21px] text-rose-deep leading-[1.6] group-hover:translate-x-1 transition-transform duration-300">
-              {promise}
-            </p>
-          </motion.li>
-        ))}
+              <ScratchCard>
+                <div className="flex items-start gap-4 md:gap-5 group w-full">
+                  {content}
+                </div>
+              </ScratchCard>
+            </motion.li>
+          );
+        })}
       </motion.ul>
 
       {/* Next Chapter Button */}

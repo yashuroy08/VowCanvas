@@ -1,6 +1,76 @@
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 
+const getYouTubeId = (url) => {
+  const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=)([^#\&\?]*).*/;
+  const match = url?.match(regExp);
+  return (match && match[2].length === 11) ? match[2] : null;
+};
+
+const MediaRenderer = ({ src, alt, className }) => {
+  const [isLoaded, setIsLoaded] = useState(false);
+  const isVideo = src?.match(/\.(mp4|webm|mov|ogg)$/i) || src?.includes('video');
+  const youtubeId = getYouTubeId(src);
+  
+  if (youtubeId) {
+    return (
+      <div className={`${className} relative overflow-hidden bg-black`}>
+        <iframe
+          src={`https://www.youtube-nocookie.com/embed/${youtubeId}?autoplay=1&mute=1&loop=1&playlist=${youtubeId}&controls=0&modestbranding=1&rel=0&iv_load_policy=3`}
+          title="YouTube Video"
+          className="absolute inset-0 w-full h-full border-none pointer-events-none scale-[1.5]"
+          allow="autoplay; encrypted-media"
+          onLoad={() => setIsLoaded(true)}
+        />
+        {!isLoaded && (
+          <div className="absolute inset-0 flex items-center justify-center bg-black/20">
+            <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+          </div>
+        )}
+      </div>
+    );
+  }
+
+  if (isVideo) {
+    return (
+      <div className={`${className} relative overflow-hidden bg-black/10`}>
+        {!isLoaded && (
+          <div className="absolute inset-0 flex items-center justify-center">
+            <div className="w-5 h-5 border-2 border-rose-deep/30 border-t-rose-deep rounded-full animate-spin" />
+          </div>
+        )}
+        <video
+          src={src}
+          autoPlay
+          loop
+          muted
+          playsInline
+          preload="auto"
+          onLoadedData={() => setIsLoaded(true)}
+          className={`w-full h-full object-cover transition-opacity duration-500 ${isLoaded ? 'opacity-100' : 'opacity-0'}`}
+        />
+      </div>
+    );
+  }
+
+  return (
+    <div className={`${className} relative overflow-hidden bg-black/5`}>
+      {!isLoaded && (
+        <div className="absolute inset-0 flex items-center justify-center">
+          <div className="w-5 h-5 border-2 border-rose-deep/10 border-t-rose-deep/30 rounded-full animate-spin" />
+        </div>
+      )}
+      <img 
+        src={src} 
+        alt={alt}
+        loading="lazy"
+        onLoad={() => setIsLoaded(true)}
+        className={`w-full h-full object-cover transition-opacity duration-500 ${isLoaded ? 'opacity-100' : 'opacity-0'}`}
+      />
+    </div>
+  );
+};
+
 export default function BentoGallery({ items, theme }) {
   const [selectedImage, setSelectedImage] = useState(null);
 
@@ -38,12 +108,11 @@ export default function BentoGallery({ items, theme }) {
             whileTap={{ scale: 0.98 }}
             className={`rounded-3xl overflow-hidden border backdrop-blur-sm cursor-pointer relative group flex flex-col justify-end shadow-md transition-all duration-300 hover:shadow-xl ${getGridClasses(index)} ${bgCard}`}
           >
-            {/* Image */}
+            {/* Media */}
             <div className="absolute inset-0 overflow-hidden bg-black/5">
-              <img
+              <MediaRenderer
                 src={item.image}
                 alt={item.text}
-                loading="lazy"
                 className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
               />
               <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/10 to-transparent opacity-60 group-hover:opacity-85 transition-opacity duration-300" />
@@ -77,9 +146,9 @@ export default function BentoGallery({ items, theme }) {
               onClick={(e) => e.stopPropagation()}
               className="max-w-2xl w-full bg-[#0a0206]/95 border border-white/10 rounded-3xl overflow-hidden shadow-2xl relative"
             >
-              {/* Image Frame */}
+              {/* Media Frame */}
               <div className="aspect-[4/3] w-full bg-neutral-900 border-b border-white/5 relative">
-                <img
+                <MediaRenderer
                   src={selectedImage.image}
                   alt={selectedImage.text}
                   className="w-full h-full object-cover"
