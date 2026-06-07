@@ -176,24 +176,18 @@ export default function SpotifyPlayer({ isBlackout }) {
     // Smoothly lowers music when candles are blown
     const handleLowerVolume = () => {
       if (audioRef.current && !isMuted) {
-        // Smooth volume fade over 800ms
-        const startVol = audioRef.current.volume;
-        const targetVol = 0.15;
-        const steps = 16;
-        const stepTime = 800 / steps;
-        let step = 0;
-        const fadeInterval = setInterval(() => {
-          step++;
-          const progress = step / steps;
-          // Ease-out curve
-          const eased = 1 - Math.pow(1 - progress, 3);
-          audioRef.current.volume = startVol + (targetVol - startVol) * eased;
-          if (step >= steps) clearInterval(fadeInterval);
-        }, stepTime);
+        fadeToVolume(0.15, 800);
       }
     };
 
-    // Full volume play trigger (legacy event)
+    // Lowers music even more for the video finale
+    const handleLowerVolumeMore = () => {
+      if (audioRef.current && !isMuted) {
+        fadeToVolume(0.05, 1200);
+      }
+    };
+
+    // Full volume play trigger (legacy/global event)
     const handlePlayTrigger = () => {
       setIsPlaying(true);
       if (audioRef.current) {
@@ -207,12 +201,28 @@ export default function SpotifyPlayer({ isBlackout }) {
       }
     };
 
+    const fadeToVolume = (targetVol, duration) => {
+      const startVol = audioRef.current.volume;
+      const steps = 20;
+      const stepTime = duration / steps;
+      let step = 0;
+      const fadeInterval = setInterval(() => {
+        step++;
+        const progress = step / steps;
+        const eased = 1 - Math.pow(1 - progress, 3);
+        audioRef.current.volume = startVol + (targetVol - startVol) * eased;
+        if (step >= steps) clearInterval(fadeInterval);
+      }, stepTime);
+    };
+
     window.addEventListener('play-love-song-soft', handleSoftPlay);
     window.addEventListener('lower-love-song', handleLowerVolume);
+    window.addEventListener('lower-love-song-more', handleLowerVolumeMore);
     window.addEventListener('play-love-song', handlePlayTrigger);
     return () => {
       window.removeEventListener('play-love-song-soft', handleSoftPlay);
       window.removeEventListener('lower-love-song', handleLowerVolume);
+      window.removeEventListener('lower-love-song-more', handleLowerVolumeMore);
       window.removeEventListener('play-love-song', handlePlayTrigger);
     };
   }, [isMuted, volume]);

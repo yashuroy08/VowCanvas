@@ -1,5 +1,7 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import confetti from 'canvas-confetti';
+import { Play, ArrowLeft } from '@phosphor-icons/react';
 import SectionDivider from '../components/SectionDivider';
 import MagneticButton from '../components/MagneticButton';
 import useDataStore from '../store/useDataStore';
@@ -85,15 +87,111 @@ const BIRTHDAY_WISHES = [
   "Happy Birthday, Love! 🎈"
 ];
 
+const getYouTubeId = (url) => {
+  const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=)([^#\&\?]*).*/;
+  const match = url?.match(regExp);
+  return (match && match[2].length === 11) ? match[2] : null;
+};
+
+const MediaRenderer = ({ src, alt, className }) => {
+  const [isLoaded, setIsLoaded] = useState(false);
+  const isVideo = src?.match(/\.(mp4|webm|mov|ogg)$/i) || src?.includes('video');
+  const youtubeId = getYouTubeId(src);
+  
+  if (youtubeId) {
+    return (
+      <div className={`${className} relative overflow-hidden bg-black`}>
+        <iframe
+          src={`https://www.youtube-nocookie.com/embed/${youtubeId}?autoplay=1&mute=1&loop=1&playlist=${youtubeId}&controls=0&modestbranding=1&rel=0&iv_load_policy=3&enablejsapi=1`}
+          title="YouTube Video"
+          className="absolute inset-0 w-full h-full border-none pointer-events-none scale-[1.5]"
+          allow="autoplay; encrypted-media"
+          onLoad={() => setIsLoaded(true)}
+        />
+        {!isLoaded && (
+          <div className="absolute inset-0 flex items-center justify-center bg-black/20">
+            <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+          </div>
+        )}
+        <div className="absolute bottom-6 left-1/2 -translate-x-1/2 z-20 pointer-events-none opacity-40">
+           <p className="text-[9px] text-white uppercase tracking-widest">Tap video to unmute</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (isVideo) {
+    return (
+      <div className={`${className} relative overflow-hidden bg-black/10`}>
+        {!isLoaded && (
+          <div className="absolute inset-0 flex items-center justify-center">
+            <div className="w-5 h-5 border-2 border-rose-deep/30 border-t-rose-deep rounded-full animate-spin" />
+          </div>
+        )}
+        <video
+          src={src}
+          autoPlay
+          loop
+          muted={false} // Finale video should have sound
+          playsInline
+          preload="auto"
+          onLoadedData={() => setIsLoaded(true)}
+          className={`w-full h-full object-cover transition-opacity duration-500 ${isLoaded ? 'opacity-100' : 'opacity-0'}`}
+        />
+      </div>
+    );
+  }
+
+  return (
+    <div className={`${className} relative overflow-hidden bg-black/5`}>
+      <img 
+        src={src} 
+        alt={alt}
+        className="w-full h-full object-cover"
+      />
+    </div>
+  );
+};
+
 export default function SurpriseSection({ isBlackout, setIsBlackout, onReset, onComplete }) {
-  const surprise = useDataStore((state) => state.data.surprise);
-  const [envelopeState, setEnvelopeState] = useState('sealed'); // 'sealed', 'open', 'revealed'
+  const { data } = useDataStore();
+  const surprise = data.surprise;
+  const theme = data.styleTheme || 'classic';
+  
+  const [envelopeState, setEnvelopeState] = useState('sealed'); // 'sealed' | 'open' | 'revealed'
   const [candles, setCandles] = useState([true, true, true]); // 3 lit candles
   const [puffs, setPuffs] = useState([]); // Smoke particles
-  const [confetti, setConfetti] = useState([]);
   const [allBlownOut, setAllBlownOut] = useState(false);
   const [messageRead, setMessageRead] = useState(false);
+  const [showVideo, setShowVideo] = useState(false);
+  const [countdown, setCountdown] = useState(null);
   const [floatingTexts, setFloatingTexts] = useState([]);
+
+  // Theme-specific video backgrounds (Emil-Style Mesh)
+  const videoBgStyles = {
+    classic: "from-[#ff4d6d]/40 to-transparent",
+    midnight: "from-[#f43f5e]/40 to-transparent",
+    lavender: "from-[#a78bfa]/40 to-transparent",
+    sage: "from-[#34d399]/40 to-transparent",
+    sunset: "from-[#fb923c]/40 to-transparent"
+  };
+
+  const handleStartVideoSequence = () => {
+    setCountdown(3);
+    // Lower music volume further for the video
+    window.dispatchEvent(new CustomEvent('lower-love-song-more'));
+  };
+
+  useEffect(() => {
+    if (countdown === null) return;
+    if (countdown > 0) {
+      const timer = setTimeout(() => setCountdown(countdown - 1), 1000);
+      return () => clearTimeout(timer);
+    } else {
+      setShowVideo(true);
+      setCountdown(null);
+    }
+  }, [countdown]);
 
   const spawnFloatingText = () => {
     const content = BIRTHDAY_WISHES[Math.floor(Math.random() * BIRTHDAY_WISHES.length)];
@@ -104,27 +202,39 @@ export default function SurpriseSection({ isBlackout, setIsBlackout, onReset, on
     const id = Date.now() + Math.random().toString(36).substring(2, 9);
     
     setFloatingTexts(prev => [...prev, { id, content, x, y, scale, rotate }]);
-    
-    setTimeout(() => {
-      setFloatingTexts(prev => prev.filter(t => t.id !== id));
-    }, 4000);
   };
 
-  // Trigger confetti celebration
+  // Trigger confetti celebration optimized for performance
   const triggerConfetti = () => {
     const colors = ['#f43f5e', '#ec4899', '#f472b6', '#fda4af', '#f59e0b', '#10b981', '#3b82f6'];
-    const particles = Array.from({ length: 80 }).map((_, index) => {
-      const startX = Math.random() * 100;
-      const sway = Math.random() * 25 - 12.5;
-      const duration = Math.random() * (4.5 - 2.5) + 2.5;
-      const delay = Math.random() * 0.4;
-      const size = Math.random() * (12 - 6) + 6;
-      const rotateEnd = Math.random() * 720 - 360;
-      const shape = Math.random() > 0.4 ? 'square' : 'circle';
-      const color = colors[Math.floor(Math.random() * colors.length)];
-      return { id: index, startX, sway, duration, delay, size, rotateEnd, shape, color };
-    });
-    setConfetti(particles);
+    const end = Date.now() + 3.0 * 1000;
+
+    let throttle = false;
+    (function frame() {
+      if (!throttle) {
+        confetti({
+          particleCount: 5,
+          angle: 60,
+          spread: 55,
+          origin: { x: 0 },
+          colors: colors,
+          zIndex: 9999
+        });
+        confetti({
+          particleCount: 5,
+          angle: 120,
+          spread: 55,
+          origin: { x: 1 },
+          colors: colors,
+          zIndex: 9999
+        });
+      }
+      throttle = !throttle; // skip every other frame to halve the workload
+
+      if (Date.now() < end) {
+        requestAnimationFrame(frame);
+      }
+    }());
   };
 
   const cakeContainerRef = useRef(null);
@@ -207,15 +317,13 @@ export default function SurpriseSection({ isBlackout, setIsBlackout, onReset, on
   const handleReset = () => {
     setEnvelopeState('sealed');
     setCandles([true, true, true]);
-    setConfetti([]);
     setAllBlownOut(false);
     setMessageRead(false);
+    setShowVideo(false);
+    setCountdown(null);
     setFloatingTexts([]);
     if (setIsBlackout) {
       setIsBlackout(false);
-    }
-    if (onReset) {
-      onReset();
     }
   };
 
@@ -235,13 +343,15 @@ export default function SurpriseSection({ isBlackout, setIsBlackout, onReset, on
         <div className="fixed inset-0 bg-[#070104] z-[-1] overflow-hidden pointer-events-none">
           <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(139,26,58,0.18)_0%,transparent_80%)]" />
           
-          {/* Starry particles */}
+          {/* Starry particles using efficient CSS animations */}
           {Array.from({ length: 22 }).map((_, i) => {
             const size = Math.random() * 3.5 + 1.2;
             const left = Math.random() * 100;
             const top = Math.random() * 100;
+            const duration = Math.random() * 4 + 4;
+            const delay = Math.random() * 5;
             return (
-              <motion.div
+              <div
                 key={i}
                 className="absolute rounded-full bg-rose-light-accent/80"
                 style={{
@@ -249,51 +359,24 @@ export default function SurpriseSection({ isBlackout, setIsBlackout, onReset, on
                   height: size,
                   left: `${left}%`,
                   top: `${top}%`,
-                }}
-                animate={{
-                  opacity: [0.1, 0.9, 0.1],
-                  scale: [0.7, 1.3, 0.7],
-                  y: [0, -35, 0]
-                }}
-                transition={{
-                  duration: Math.random() * 4 + 4,
-                  delay: Math.random() * 5,
-                  repeat: Infinity,
-                  ease: "easeInOut"
+                  animation: `starFloat ${duration}s ease-in-out ${delay}s infinite alternate`
                 }}
               />
             );
           })}
         </div>
       )}
+      
+      <style>{`
+        @keyframes starFloat {
+          0% { transform: scale(0.7) translateY(0); opacity: 0.1; }
+          50% { transform: scale(1.3) translateY(-35px); opacity: 0.9; }
+          100% { transform: scale(0.7) translateY(0); opacity: 0.1; }
+        }
+      `}</style>
 
       {/* Celebration Confetti */}
-      <AnimatePresence>
-        {allBlownOut && confetti.map((p) => (
-          <motion.div
-            key={p.id}
-            initial={{ y: -50, x: `${p.startX}vw`, rotate: 0, opacity: 1 }}
-            animate={{ 
-              y: '105vh', 
-              x: `${p.startX + p.sway}vw`, 
-              rotate: p.rotateEnd,
-              opacity: [1, 1, 0.4, 0] 
-            }}
-            exit={{ opacity: 0 }}
-            transition={{ duration: p.duration, delay: p.delay, ease: 'linear' }}
-            className="fixed pointer-events-none"
-            style={{
-              top: 0,
-              backgroundColor: p.color,
-              width: p.size,
-              height: p.size,
-              borderRadius: p.shape === 'circle' ? '50%' : '2px',
-              zIndex: 9999,
-              boxShadow: '0 2px 5px rgba(0,0,0,0.05)'
-            }}
-          />
-        ))}
-      </AnimatePresence>
+      {/* Using canvas-confetti for extreme performance optimization */}
 
       <div className={`text-center mb-8 md:mb-12 select-none ${isBlackout ? 'text-white' : ''}`}>
         <h2 className={`font-cormorant text-[clamp(24px,4.5vw,44px)] font-light leading-tight ${isBlackout ? 'text-rose-light-accent' : 'text-rose-deep'}`}>
@@ -360,7 +443,6 @@ export default function SurpriseSection({ isBlackout, setIsBlackout, onReset, on
               <motion.div
                 animate={envelopeState === 'open' ? { rotateX: 180, y: -1 } : { rotateX: 0 }}
                 transition={{ duration: 0.7, ease: "easeInOut" }}
-                originY={0}
                 style={{ transformOrigin: "top", transformStyle: "preserve-3d" }}
                 className="absolute inset-x-0 top-0 h-[100px] bg-rose-light-accent/85 border-x border-rose-border/40 rounded-b-2xl shadow-sm z-30 transition-colors duration-500"
               >
@@ -479,8 +561,11 @@ export default function SurpriseSection({ isBlackout, setIsBlackout, onReset, on
                       scale: [0.2, 1.8, 2.5]
                     }}
                     transition={{ duration: 1.2, ease: "easeOut" }}
+                    onAnimationComplete={() => {
+                      setPuffs(prev => prev.filter(p => p.id !== puff.id));
+                    }}
                     className="absolute bg-neutral-400 rounded-full blur-[3px]"
-                    style={{ width: puff.size, height: puff.size }}
+                    style={{ width: puff.size, height: puff.size, willChange: 'transform, opacity, scale' }}
                   />
                 ))}
               </div>
@@ -556,33 +641,65 @@ export default function SurpriseSection({ isBlackout, setIsBlackout, onReset, on
                     transition={{ duration: 0.8 }}
                     className="text-center"
                   >
-                    <h3 className="font-cormorant italic text-[20px] md:text-[30px] font-bold text-rose-deep mb-4">
-                      Happy Birthday, My Love!
-                    </h3>
-                    <p className="font-cormorant italic text-[15px] md:text-[18px] lg:text-[20px] text-rose-dark-accent leading-[1.8] md:leading-[2.1] mb-8 px-2 min-h-[120px]">
-                      <Typewriter 
-                        text={surprise.message}
-                        speed={35}
-                        onComplete={() => setMessageRead(true)}
-                      />
-                    </p>
+                    {countdown === null && (
+                      <>
+                        <h3 className="font-cormorant italic text-[20px] md:text-[30px] font-bold text-rose-deep mb-4">
+                          Happy Birthday, My Love!
+                        </h3>
+                        <p className="font-cormorant italic text-[15px] md:text-[18px] lg:text-[20px] text-rose-dark-accent leading-[1.8] md:leading-[2.1] mb-8 px-2 min-h-[120px]">
+                          <Typewriter 
+                            text={surprise.message}
+                            speed={35}
+                            onComplete={() => setMessageRead(true)}
+                          />
+                        </p>
+                      </>
+                    )}
 
                     {/* Stage 3 Controls (appears only after blowing and reading the message) */}
-                    {messageRead && (
+                    {messageRead && countdown === null && !showVideo && (
                       <motion.div 
-                        initial={{ opacity: 0, y: 10 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        transition={{ duration: 0.5, ease: "easeOut" }}
-                        className="flex flex-wrap justify-center gap-4 mt-6"
+                        initial={{ opacity: 0, scale: 0.95 }}
+                        animate={{ opacity: 1, scale: 1 }}
+                        transition={{ duration: 0.5, ease: [0.23, 1, 0.32, 1] }}
+                        className="flex flex-col items-center gap-6 mt-8"
                       >
-                        <MagneticButton>
+                        {surprise.videoUrl ? (
+                          <button
+                            onClick={handleStartVideoSequence}
+                            className="bg-rose-deep text-white px-8 py-4 rounded-2xl font-bold flex items-center gap-3 interactive-scale shadow-xl shadow-rose-deep/20 text-sm md:text-base"
+                          >
+                            <Play weight="fill" /> Watch Your Final Surprise
+                          </button>
+                        ) : (
                           <button
                             onClick={handleReset}
-                            className="font-lato text-[10px] tracking-[2px] uppercase px-5 py-3.5 text-rose-soft hover:text-rose-deep rounded-full transition-colors duration-300 focus:outline-none cursor-pointer"
+                            className="font-lato text-[10px] tracking-[2px] uppercase px-6 py-3.5 bg-white/40 border border-white/60 text-rose-deep rounded-full interactive-scale shadow-sm"
                           >
                             ♡ Reset Card
                           </button>
-                        </MagneticButton>
+                        )}
+                      </motion.div>
+                    )}
+
+                    {/* Countdown / Wait Message (Centered in the card) */}
+                    {countdown !== null && (
+                      <motion.div 
+                        key="countdown-wrap"
+                        initial={{ opacity: 0, scale: 0.8 }}
+                        animate={{ opacity: 1, scale: 1 }}
+                        exit={{ opacity: 0, scale: 1.1 }}
+                        className="mt-8 flex flex-col items-center min-h-[120px] justify-center"
+                      >
+                        <p className="text-rose-soft text-[10px] uppercase tracking-[0.3em] mb-4 animate-pulse">Preparing your finale...</p>
+                        <motion.span 
+                          key={countdown}
+                          initial={{ opacity: 0, y: 10 }}
+                          animate={{ opacity: 1, y: 0 }}
+                          className="text-7xl font-bold text-rose-deep font-outfit"
+                        >
+                          {countdown}
+                        </motion.span>
                       </motion.div>
                     )}
                   </motion.div>
@@ -590,7 +707,46 @@ export default function SurpriseSection({ isBlackout, setIsBlackout, onReset, on
               </div>
             </motion.div>
           )}
+        </AnimatePresence>
 
+        {/* Final Secret Video Stage (Overlays EVERYTHING in the section) */}
+        <AnimatePresence>
+          {showVideo && (
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="fixed inset-0 z-[100] bg-rose-blush flex flex-col items-center justify-center p-4 md:p-12 overflow-hidden"
+            >
+              {/* Dynamic Theme Background for Video Stage */}
+              <div className={`absolute inset-0 bg-gradient-to-br ${videoBgStyles[theme]} opacity-60 blur-[120px]`} />
+              <div className="noise-overlay opacity-[0.05]" />
+              
+              <div className="relative z-10 w-full h-full max-w-6xl flex flex-col items-center">
+                <div className="w-full flex justify-between items-center mb-8 px-4">
+                    <div className="flex flex-col gap-1">
+                      <span className="text-[10px] font-bold text-rose-deep/40 uppercase tracking-[0.3em]">Secret Finale</span>
+                      <p className="text-[9px] text-rose-deep/30 uppercase tracking-widest">Tap video to unmute</p>
+                    </div>
+                    <button onClick={handleReset} className="text-rose-deep/60 hover:text-rose-deep transition-colors interactive-scale p-2 rounded-full hover:bg-rose-deep/5">
+                      <ArrowLeft weight="bold" size={20} />
+                    </button>
+                </div>
+
+                <div className="flex-grow w-full bg-black rounded-[40px] overflow-hidden shadow-[0_40px_100px_-20px_rgba(0,0,0,0.5)] border border-white/20 relative group">
+                    <MediaRenderer 
+                      src={surprise.videoUrl} 
+                      className="w-full h-full" 
+                    />
+                </div>
+                
+                <div className="mt-10 text-center px-4">
+                  <p className="font-cormorant italic text-xl md:text-2xl text-rose-dark-accent mb-3">Our story is my favorite story.</p>
+                  <div className="w-16 h-0.5 bg-rose-border mx-auto rounded-full opacity-40" />
+                </div>
+              </div>
+            </motion.div>
+          )}
         </AnimatePresence>
       </div>
 
@@ -608,7 +764,11 @@ export default function SurpriseSection({ isBlackout, setIsBlackout, onReset, on
               }}
               exit={{ opacity: 0, scale: 0.8 }}
               transition={{ duration: 4, ease: "easeOut" }}
+              onAnimationComplete={() => {
+                setFloatingTexts(prev => prev.filter(t => t.id !== txt.id));
+              }}
               className="absolute px-4 py-2.5 rounded-2xl bg-rose-blush/90 backdrop-blur-md border border-rose-border text-rose-deep font-cormorant italic text-sm md:text-md shadow-lg flex items-center justify-center whitespace-nowrap"
+              style={{ willChange: 'transform, opacity' }}
             >
               {txt.content}
             </motion.div>

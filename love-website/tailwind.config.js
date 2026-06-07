@@ -8,6 +8,8 @@ export default {
     extend: {
       fontFamily: {
         cormorant: ["Cormorant Garamond", "serif"],
+        outfit: ["Outfit", "sans-serif"],
+        geist: ["Geist", "sans-serif"],
         lato: ["Lato", "sans-serif"],
       },
       colors: {

@@ -44,13 +44,19 @@ const RoseBud = () => (
   </svg>
 );
 
+const HeartShape = () => (
+  <svg viewBox="0 0 100 100" fill="currentColor" xmlns="http://www.w3.org/2000/svg" className="w-full h-full opacity-80">
+    <path d="M50 85 C50 85, 15 65, 15 35 C15 15, 45 10, 50 25 C55 10, 85 15, 85 35 C85 65, 50 85, 50 85 Z" />
+  </svg>
+);
+
 export default function PetalRain() {
   const { isPlaying, volume } = useDataStore(state => state.audioState);
 
   const petals = useMemo(() => {
-    return Array.from({ length: 35 }).map((_, index) => {
+    return Array.from({ length: 40 }).map((_, index) => {
       const typeRand = Math.random();
-      const type = typeRand < 0.22 ? 'blossom' : typeRand < 0.44 ? 'bud' : 'petal';
+      const type = typeRand < 0.2 ? 'blossom' : typeRand < 0.4 ? 'bud' : typeRand < 0.6 ? 'heart' : 'petal';
       const size = Math.random() * (32 - 12) + 12; // Size between 12px and 32px
       const left = Math.random() * 100; // Position between 0% and 100% vw
       const color = PETAL_COLORS[Math.floor(Math.random() * PETAL_COLORS.length)];
@@ -100,6 +106,7 @@ export default function PetalRain() {
           {petal.type === 'blossom' && <RoseBlossom />}
           {petal.type === 'bud' && <RoseBud />}
           {petal.type === 'petal' && <RosePetal />}
+          {petal.type === 'heart' && <HeartShape />}
         </div>
       ))}
     </div>

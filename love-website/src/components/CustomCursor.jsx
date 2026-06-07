@@ -4,6 +4,7 @@ import { motion, useSpring } from 'framer-motion';
 export default function CustomCursor() {
   const [isHovering, setIsHovering] = useState(false);
   const [isVisible, setIsVisible] = useState(false);
+  const [isMobile, setIsMobile] = useState(false);
 
   // Smooth springing cursor position
   const cursorX = useSpring(-100, { stiffness: 500, damping: 28, mass: 0.5 });
@@ -14,6 +15,13 @@ export default function CustomCursor() {
   const trailingY = useSpring(-100, { stiffness: 150, damping: 20, mass: 0.8 });
 
   useEffect(() => {
+    // Check for touch device / coarse pointer
+    const isTouchDevice = window.matchMedia("(pointer: coarse)").matches || 'ontouchstart' in window;
+    if (isTouchDevice) {
+      setIsMobile(true);
+      return;
+    }
+
     // Enable custom cursor styling in CSS
     document.documentElement.classList.add('custom-cursor-enabled');
 
@@ -57,7 +65,7 @@ export default function CustomCursor() {
     };
   }, [cursorX, cursorY, trailingX, trailingY, isVisible]);
 
-  if (!isVisible) return null;
+  if (isMobile || !isVisible) return null;
 
   return (
     <>

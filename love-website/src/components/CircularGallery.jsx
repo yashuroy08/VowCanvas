@@ -302,7 +302,37 @@ class Media {
       transparent: true
     });
 
-    if (this.image) {
+    const isVideo = this.image?.match(/\.(mp4|webm|mov|ogg)$/i) || this.image?.includes('video');
+    const youtubeId = this.image?.match(/^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=)([^#\&\?]*).*/)?.[2];
+    const isYouTube = youtubeId && youtubeId.length === 11;
+
+    if (isYouTube) {
+      // Load YouTube thumbnail as placeholder for WebGL plane
+      const img = new Image();
+      img.crossOrigin = 'anonymous';
+      img.src = `https://img.youtube.com/vi/${youtubeId}/maxresdefault.jpg`;
+      img.onload = () => {
+        texture.image = img;
+        this.program.uniforms.uImageSizes.value = [img.naturalWidth, img.naturalHeight];
+      };
+      img.onerror = () => {
+        // Fallback to hqdefault if maxres fails
+        img.src = `https://img.youtube.com/vi/${youtubeId}/hqdefault.jpg`;
+      };
+    } else if (isVideo) {
+      const video = document.createElement('video');
+      video.src = this.image;
+      video.crossOrigin = 'anonymous';
+      video.loop = true;
+      video.muted = true;
+      video.playsInline = true;
+      video.play();
+      
+      video.oncanplay = () => {
+        texture.image = video;
+        this.program.uniforms.uImageSizes.value = [video.videoWidth, video.videoHeight];
+      };
+    } else if (this.image) {
       const img = new Image();
       img.crossOrigin = 'anonymous';
       img.src = this.image;
@@ -386,13 +416,13 @@ class Media {
     // Scale down items on mobile preview viewports
     let mobileScaleFactor = 1.0;
     if (this.screen.width < 500) {
-      mobileScaleFactor = 0.55;
+      mobileScaleFactor = 0.65;
     } else if (this.screen.width < 768) {
-      mobileScaleFactor = 0.75;
+      mobileScaleFactor = 0.85;
     }
 
-    this.plane.scale.y = (this.viewport.height * (900 * this.scale * mobileScaleFactor)) / this.screen.height;
-    this.plane.scale.x = (this.viewport.width * (700 * this.scale * mobileScaleFactor)) / this.screen.width;
+    this.plane.scale.y = (this.viewport.height * (1100 * this.scale * mobileScaleFactor)) / this.screen.height;
+    this.plane.scale.x = (this.viewport.width * (850 * this.scale * mobileScaleFactor)) / this.screen.width;
     this.plane.program.uniforms.uPlaneSizes.value = [this.plane.scale.x, this.plane.scale.y];
     this.padding = 2 * mobileScaleFactor;
     this.width = this.plane.scale.x + this.padding;

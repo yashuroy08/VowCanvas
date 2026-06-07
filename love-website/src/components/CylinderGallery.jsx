@@ -6,6 +6,76 @@ import { useGSAP } from '@gsap/react';
 
 gsap.registerPlugin(ScrollTrigger);
 
+const getYouTubeId = (url) => {
+  const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=)([^#\&\?]*).*/;
+  const match = url?.match(regExp);
+  return (match && match[2].length === 11) ? match[2] : null;
+};
+
+const MediaRenderer = ({ src, alt, className }) => {
+  const [isLoaded, setIsLoaded] = useState(false);
+  const isVideo = src?.match(/\.(mp4|webm|mov|ogg)$/i) || src?.includes('video');
+  const youtubeId = getYouTubeId(src);
+  
+  if (youtubeId) {
+    return (
+      <div className={`${className} relative overflow-hidden bg-black`}>
+        <iframe
+          src={`https://www.youtube-nocookie.com/embed/${youtubeId}?autoplay=1&mute=1&loop=1&playlist=${youtubeId}&controls=0&modestbranding=1&rel=0&iv_load_policy=3`}
+          title="YouTube Video"
+          className="absolute inset-0 w-full h-full border-none pointer-events-none scale-[1.5]"
+          allow="autoplay; encrypted-media"
+          onLoad={() => setIsLoaded(true)}
+        />
+        {!isLoaded && (
+          <div className="absolute inset-0 flex items-center justify-center bg-black/20">
+            <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+          </div>
+        )}
+      </div>
+    );
+  }
+
+  if (isVideo) {
+    return (
+      <div className={`${className} relative overflow-hidden bg-black/10`}>
+        {!isLoaded && (
+          <div className="absolute inset-0 flex items-center justify-center">
+            <div className="w-5 h-5 border-2 border-rose-deep/30 border-t-rose-deep rounded-full animate-spin" />
+          </div>
+        )}
+        <video
+          src={src}
+          autoPlay
+          loop
+          muted
+          playsInline
+          preload="auto"
+          onLoadedData={() => setIsLoaded(true)}
+          className={`w-full h-full object-cover transition-opacity duration-500 ${isLoaded ? 'opacity-100' : 'opacity-0'}`}
+        />
+      </div>
+    );
+  }
+
+  return (
+    <div className={`${className} relative overflow-hidden bg-black/5`}>
+      {!isLoaded && (
+        <div className="absolute inset-0 flex items-center justify-center">
+          <div className="w-5 h-5 border-2 border-rose-deep/10 border-t-rose-deep/30 rounded-full animate-spin" />
+        </div>
+      )}
+      <img 
+        src={src} 
+        alt={alt}
+        loading="lazy"
+        onLoad={() => setIsLoaded(true)}
+        className={`w-full h-full object-cover transition-opacity duration-500 ${isLoaded ? 'opacity-100' : 'opacity-0'}`}
+      />
+    </div>
+  );
+};
+
 export default function CylinderGallery({ items, theme }) {
   const triggerRef = useRef(null);
   const wheelRef = useRef(null);
@@ -40,7 +110,7 @@ export default function CylinderGallery({ items, theme }) {
         trigger: triggerRef.current,
         pin: true,
         scrub: 1.2,
-        start: "top top",
+        start: "center center", // Changed from top top for better main page flow
         end: "+=1200",
         invalidateOnRefresh: true,
       }
@@ -99,11 +169,10 @@ export default function CylinderGallery({ items, theme }) {
                 }}
               >
                 <div className="absolute inset-0 overflow-hidden bg-black/5">
-                  <img 
+                  <MediaRenderer 
                     src={item.image} 
                     alt={item.text}
                     className="absolute inset-0 w-full h-full object-cover origin-center filter brightness-90 transition-all duration-700 pointer-events-none"
-                    loading="lazy"
                   />
                 </div>
                 <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/10 to-transparent flex flex-col justify-end p-3.5 md:p-6">
@@ -138,7 +207,7 @@ export default function CylinderGallery({ items, theme }) {
           >
             <div className="w-[230px] bg-[#0c0507]/90 backdrop-blur-xl border border-white/10 rounded-2xl p-2.5 shadow-[0_12px_40px_rgba(0,0,0,0.6)] flex flex-col items-center">
               <div className="w-full aspect-[4/3] rounded-xl overflow-hidden mb-2.5 bg-neutral-900 border border-white/5">
-                <img 
+                <MediaRenderer 
                   src={items[hoveredIndex].image} 
                   alt={items[hoveredIndex].text}
                   className="w-full h-full object-cover"

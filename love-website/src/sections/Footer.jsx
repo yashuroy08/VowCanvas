@@ -1,4 +1,5 @@
 import { motion } from 'framer-motion';
+import { InstagramLogo, GithubLogo, LinkedinLogo } from '@phosphor-icons/react';
 
 const OrnateDivider = () => (
   <svg className="w-56 h-8 text-rose-soft/40 fill-none" viewBox="0 0 200 30" stroke="currentColor" strokeWidth="1" aria-hidden="true">
@@ -53,6 +54,19 @@ export default function Footer() {
 
         {/* Bottom ornate flourish */}
         <OrnateDivider />
+
+        {/* Social Links */}
+        <div className="flex gap-8 mt-8 items-center">
+          <a href="https://instagram.com/" target="_blank" rel="noopener noreferrer" className="text-rose-soft/60 hover:text-rose-deep transition-colors">
+            <InstagramLogo size={22} weight="bold" />
+          </a>
+          <a href="https://github.com/" target="_blank" rel="noopener noreferrer" className="text-rose-soft/60 hover:text-rose-deep transition-colors">
+            <GithubLogo size={22} weight="bold" />
+          </a>
+          <a href="https://linkedin.com/" target="_blank" rel="noopener noreferrer" className="text-rose-soft/60 hover:text-rose-deep transition-colors">
+            <LinkedinLogo size={22} weight="bold" />
+          </a>
+        </div>
       </motion.div>
     </footer>
   );
