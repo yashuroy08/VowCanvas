@@ -477,9 +477,10 @@ class App {
     this.scene = new Transform();
   }
   createGeometry() {
+    const isMobile = window.innerWidth < 768;
     this.planeGeometry = new Plane(this.gl, {
-      heightSegments: 50,
-      widthSegments: 100
+      heightSegments: isMobile ? 20 : 50,
+      widthSegments: isMobile ? 40 : 100
     });
   }
   createMedias(items, bend = 1, textColor, borderRadius, font) {

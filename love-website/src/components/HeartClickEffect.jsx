@@ -12,6 +12,8 @@ export default function HeartClickEffect() {
       const colors = ['#f43f5e', '#ec4899', '#f472b6', '#fda4af', '#fb7185'];
       const color = colors[Math.floor(Math.random() * colors.length)];
       
+      const isTouch = window.matchMedia("(pointer: coarse)").matches || 'ontouchstart' in window;
+      
       const newHeart = {
         id,
         x: e.clientX,
@@ -19,7 +21,8 @@ export default function HeartClickEffect() {
         size,
         rotate,
         color,
-        sway: Math.random() * 60 - 30
+        sway: Math.random() * 60 - 30,
+        isTouch
       };
 
       setHearts((prev) => [...prev, newHeart].slice(-20)); // Limit to max 20 active hearts to save memory
@@ -58,7 +61,7 @@ export default function HeartClickEffect() {
               fill: 'none',
               stroke: 'currentColor',
               strokeWidth: 1.5,
-              filter: 'drop-shadow(0 2px 8px rgba(244,63,94,0.3))'
+              filter: heart.isTouch ? 'none' : 'drop-shadow(0 2px 8px rgba(244,63,94,0.3))'
             }}
             viewBox="0 0 24 24"
           >

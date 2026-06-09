@@ -52,9 +52,12 @@ const HeartShape = () => (
 
 export default function PetalRain() {
   const { isPlaying, volume } = useDataStore(state => state.audioState);
+  
+  const isMobile = typeof window !== 'undefined' && window.innerWidth < 768;
 
   const petals = useMemo(() => {
-    return Array.from({ length: 40 }).map((_, index) => {
+    const count = isMobile ? 18 : 40; // Reduced count for mobile
+    return Array.from({ length: count }).map((_, index) => {
       const typeRand = Math.random();
       const type = typeRand < 0.2 ? 'blossom' : typeRand < 0.4 ? 'bud' : typeRand < 0.6 ? 'heart' : 'petal';
       const size = Math.random() * (32 - 12) + 12; // Size between 12px and 32px
@@ -65,8 +68,10 @@ export default function PetalRain() {
       const swayDistance = (Math.random() * 80 - 40); // Sway between -40px and +40px
       const swayRotation = (Math.random() * 360 + 180) * (Math.random() < 0.5 ? 1 : -1); // Rotate 180 to 540 degrees
       
-      // Cinematic depth-of-field blur: small background petals and large foreground petals are blurred.
-      const blur = size < 16 ? '1.5px' : size > 26 ? '0.8px' : '0px';
+      // Cinematic depth-of-field blur: disabled on mobile for performance
+      const blurValue = isMobile ? 0 : (size < 16 ? 1.5 : size > 26 ? 0.8 : 0);
+      const blur = blurValue > 0 ? `${blurValue}px` : '0px';
+      
       // 3D shadow on larger petals
       const shadow = size > 22 ? '0 4px 10px rgba(0, 0, 0, 0.08)' : 'none';
 
@@ -82,13 +87,13 @@ export default function PetalRain() {
           animationDelay: `${delay}s`,
           '--sway-distance': `${swayDistance}px`,
           '--sway-rotation': `${swayRotation}deg`,
-          filter: `blur(${blur})`,
+          filter: blur !== '0px' ? `blur(${blur})` : 'none',
           boxShadow: shadow,
           transform: `rotate(${Math.random() * 360}deg)`
         }
       };
     });
-  }, []);
+  }, [isMobile]);
 
   return (
     <div aria-hidden="true" className="fixed inset-0 pointer-events-none z-0 overflow-hidden select-none">

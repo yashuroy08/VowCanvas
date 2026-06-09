@@ -22,6 +22,7 @@ const transition = { duration: 0.8, ease: [0.23, 1, 0.32, 1] };
 
 export default function LandingPage() {
   const containerRef = useRef(null);
+  const isTouchDevice = typeof window !== 'undefined' && (window.matchMedia("(pointer: coarse)").matches || 'ontouchstart' in window);
   
   // Mouse Spring Tracking for Hero
   const mouseX = useMotionValue(0);
@@ -35,6 +36,7 @@ export default function LandingPage() {
   const moveY = useTransform(springY, [-0.5, 0.5], [-30, 30]);
 
   const handleMouseMove = (e) => {
+    if (isTouchDevice) return;
     const { clientX, clientY } = e;
     const { innerWidth, innerHeight } = window;
     mouseX.set((clientX / innerWidth) - 0.5);
@@ -56,7 +58,7 @@ export default function LandingPage() {
       <div className="mesh-gradient" />
       <div className="noise-overlay" />
       {/* Navigation: Minimalist Split */}
-      <nav className="fixed top-8 left-1/2 -translate-x-1/2 z-50 backdrop-blur-xl bg-white/40 border border-white/60 shadow-lg px-8 py-4 rounded-full flex items-center gap-12">
+      <nav className="fixed top-8 left-1/2 -translate-x-1/2 z-50 backdrop-blur-xl bg-white/40 border border-white/60 shadow-lg px-8 py-4 rounded-full flex items-center gap-12 w-[90%] md:w-auto justify-between md:justify-start">
         <div className="font-bold tracking-widest uppercase text-xs flex items-center gap-2">
           <Heart weight="fill" className="w-4 h-4 text-rose-medium" />
           LOVECRAFT
@@ -66,23 +68,23 @@ export default function LandingPage() {
           <a href="#artistry" className="hover:text-rose-deep transition-colors">Artistry</a>
         </div>
         <Link to="/create">
-          <button className="interactive-scale bg-rose-deep text-white px-6 py-2 rounded-full text-xs font-bold shadow-md">
+          <button className="interactive-scale bg-rose-deep text-white px-6 py-2 rounded-full text-xs font-bold shadow-md whitespace-nowrap">
             Create Yours
           </button>
         </Link>
       </nav>
 
       {/* Attention: Hero (Artistic Asymmetry + Spring Micro-Interactions) */}
-      <section className="relative w-full min-h-[100dvh] flex flex-col justify-center px-8 md:px-24 pt-32 pb-24 overflow-hidden">
+      <section className="relative w-full min-h-[100dvh] flex flex-col justify-center px-6 md:px-24 pt-32 pb-24 overflow-hidden">
         <div className="max-w-7xl w-full mx-auto relative z-10">
           <motion.div
-            initial={{ opacity: 0, y: 20, scale: 0.95 }}
+            initial={{ opacity: 0, y: 20, scale: 0.98 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
             transition={transition}
           >
-            <h1 className="text-[clamp(3.5rem,8.5vw,9rem)] leading-[0.9] tracking-tight font-medium text-rose-dark-accent max-w-6xl">
+            <h1 className="text-[clamp(2.5rem,8.5vw,9rem)] leading-[0.95] tracking-tight font-medium text-rose-dark-accent max-w-6xl">
               We shape 
-              <span className="inline-block w-[14vw] h-[7vw] rounded-full align-middle bg-cover bg-center mx-4 border-2 border-white shadow-2xl" style={{backgroundImage: 'url(https://images.unsplash.com/photo-1519741497674-611481863552?q=80&w=800)'}}></span> 
+              <span className="inline-block w-[20vw] h-[10vw] md:w-[14vw] md:h-[7vw] rounded-full align-middle bg-cover bg-center mx-2 md:mx-4 border-2 border-white shadow-2xl" style={{backgroundImage: 'url(https://images.unsplash.com/photo-1519741497674-611481863552?q=80&w=800)'}}></span> 
               digital spaces for your <span className="italic font-cormorant font-light">deepest</span> affections.
             </h1>
           </motion.div>
@@ -91,10 +93,10 @@ export default function LandingPage() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ ...transition, delay: 0.2 }}
-            className="mt-16 flex flex-col md:flex-row items-start md:items-center gap-12"
+            className="mt-12 md:mt-16 flex flex-col md:flex-row items-start md:items-center gap-8 md:gap-12"
           >
             <Link to="/create">
-              <button className="interactive-scale bg-rose-deep text-white px-10 py-5 rounded-full font-bold flex items-center gap-3 shadow-2xl shadow-rose-deep/20 text-lg">
+              <button className="interactive-scale bg-rose-deep text-white px-8 md:px-10 py-4 md:py-5 rounded-full font-bold flex items-center gap-3 shadow-2xl shadow-rose-deep/20 text-base md:text-lg">
                 Get Started <ArrowUpRight weight="bold" />
               </button>
             </Link>
@@ -104,18 +106,20 @@ export default function LandingPage() {
           </motion.div>
         </div>
 
-        {/* Artistic Asymmetry: Floating Spring Asset */}
-        <motion.div 
-          style={{ x: moveX, y: moveY }}
-          className="absolute right-[-2vw] bottom-[15vh] w-[40vw] h-[55vh] rounded-[48px] overflow-hidden shadow-[0_40px_80px_-20px_rgba(139,26,58,0.15)] border border-white/40 hidden md:block"
-        >
-          <img 
-            src="https://images.unsplash.com/photo-1522673607200-164d1b6ce486?q=80&w=1200" 
-            alt="Cinematic Romance" 
-            className="w-full h-full object-cover brightness-[0.95] contrast-[1.05]"
-          />
-          <div className="absolute inset-0 bg-gradient-to-tr from-rose-blush/20 to-transparent mix-blend-overlay"></div>
-        </motion.div>
+        {/* Artistic Asymmetry: Floating Spring Asset - Hidden on touch for performance */}
+        {!isTouchDevice && (
+          <motion.div 
+            style={{ x: moveX, y: moveY }}
+            className="absolute right-[-2vw] bottom-[15vh] w-[40vw] h-[55vh] rounded-[48px] overflow-hidden shadow-[0_40px_80px_-20px_rgba(139,26,58,0.15)] border border-white/40 hidden md:block"
+          >
+            <img 
+              src="https://images.unsplash.com/photo-1522673607200-164d1b6ce486?q=80&w=1200" 
+              alt="Cinematic Romance" 
+              className="w-full h-full object-cover brightness-[0.95] contrast-[1.05]"
+            />
+            <div className="absolute inset-0 bg-gradient-to-tr from-rose-blush/20 to-transparent mix-blend-overlay"></div>
+          </motion.div>
+        )}
 
         {/* Decorative Grid Mesh */}
         <div className="absolute inset-0 z-0 pointer-events-none opacity-[0.03]" style={{ backgroundImage: 'radial-gradient(circle at 2px 2px, var(--rose-deep) 1px, transparent 0)', backgroundSize: '48px 48px' }}></div>

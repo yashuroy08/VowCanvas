@@ -106,7 +106,7 @@ export default function BentoGallery({ items, theme }) {
             onClick={() => setSelectedImage({ ...item, index })}
             whileHover={{ scale: 1.01 }}
             whileTap={{ scale: 0.98 }}
-            className={`rounded-3xl overflow-hidden border backdrop-blur-sm cursor-pointer relative group flex flex-col justify-end shadow-md transition-all duration-300 hover:shadow-xl ${getGridClasses(index)} ${bgCard}`}
+            className={`rounded-3xl overflow-hidden border backdrop-blur-none md:backdrop-blur-sm cursor-pointer relative group flex flex-col justify-end shadow-md transition-all duration-300 hover:shadow-xl ${getGridClasses(index)} ${bgCard}`}
           >
             {/* Media */}
             <div className="absolute inset-0 overflow-hidden bg-black/5">

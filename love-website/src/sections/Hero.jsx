@@ -14,21 +14,12 @@ const titleContainer = {
   }
 };
 
-const wordVariants = {
-  hidden: { opacity: 0, y: 30, filter: 'blur(10px)', scale: 0.9 },
-  visible: { 
-    opacity: 1, 
-    y: 0, 
-    filter: 'blur(0px)',
-    scale: 1,
-    transition: { duration: 1, ease: [0.16, 1, 0.3, 1] } 
-  }
-};
-
 export default function Hero({ startAnimation, onNext }) {
   const heroData = useDataStore((state) => state.data.hero);
   const x = useMotionValue(0);
   const y = useMotionValue(0);
+  
+  const isTouchDevice = typeof window !== 'undefined' && (window.matchMedia("(pointer: coarse)").matches || 'ontouchstart' in window);
 
   const springX = useSpring(x, { stiffness: 50, damping: 20 });
   const springY = useSpring(y, { stiffness: 50, damping: 20 });
@@ -46,6 +37,7 @@ export default function Hero({ startAnimation, onNext }) {
   const bgY = useTransform(springY, [-0.5, 0.5], [15, -15]);
 
   const handleMouseMove = (e) => {
+    if (isTouchDevice) return;
     const { clientX, clientY } = e;
     const { innerWidth, innerHeight } = window;
     x.set((clientX / innerWidth) - 0.5);
@@ -57,16 +49,36 @@ export default function Hero({ startAnimation, onNext }) {
     y.set(0);
   };
   const heroRevealVariants = {
-    hidden: { opacity: 0, scale: 1.05, filter: 'blur(12px)' },
+    hidden: { 
+      opacity: 0, 
+      scale: 1.05, 
+      filter: isTouchDevice ? 'none' : 'blur(12px)' 
+    },
     visible: {
       opacity: 1,
       scale: 1,
-      filter: 'blur(0px)',
+      filter: 'none',
       transition: {
         duration: 1.4,
         ease: [0.16, 1, 0.3, 1],
         delayChildren: 0.2
       }
+    }
+  };
+
+  const wordVariants = {
+    hidden: { 
+      opacity: 0, 
+      y: 30, 
+      filter: isTouchDevice ? 'none' : 'blur(10px)', 
+      scale: 0.9 
+    },
+    visible: { 
+      opacity: 1, 
+      y: 0, 
+      filter: 'none',
+      scale: 1,
+      transition: { duration: 1, ease: [0.16, 1, 0.3, 1] } 
     }
   };
 

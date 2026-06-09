@@ -358,37 +358,40 @@ export default function App() {
           
           {SECTIONS_LIST.map((node, index) => {
             const isUnlocked = index <= unlockedDepth;
+            const isNear = index <= unlockedDepth + 1; // Preload only next section
             
             // Choose component dynamically
             let component = null;
-            switch (node.id) {
-              case 'hero':
-                component = <Hero startAnimation={!introPlaying} onNext={() => handleNextNode(0)} />;
-                break;
-              case 'our-story':
-                component = <ReasonsSection onNext={() => handleNextNode(1)} />;
-                break;
-              case 'letter':
-                component = <LetterSection onNext={() => handleNextNode(2)} />;
-                break;
-              case 'memories':
-                component = <MemoriesSection theme={theme} onNext={() => handleNextNode(3)} />;
-                break;
-              case 'promises':
-                component = <PromisesSection onNext={() => handleNextNode(4)} />;
-                break;
-              case 'surprise':
-                component = (
-                  <SurpriseSection 
-                    isBlackout={isBlackout}
-                    setIsBlackout={setIsBlackout} 
-                    onReset={handleReset}
-                    onComplete={() => setSurpriseCompleted(true)}
-                  />
-                );
-                break;
-              default:
-                break;
+            if (isNear) {
+              switch (node.id) {
+                case 'hero':
+                  component = <Hero startAnimation={!introPlaying} onNext={() => handleNextNode(0)} />;
+                  break;
+                case 'our-story':
+                  component = <ReasonsSection onNext={() => handleNextNode(1)} />;
+                  break;
+                case 'letter':
+                  component = <LetterSection onNext={() => handleNextNode(2)} />;
+                  break;
+                case 'memories':
+                  component = <MemoriesSection theme={theme} onNext={() => handleNextNode(3)} />;
+                  break;
+                case 'promises':
+                  component = <PromisesSection onNext={() => handleNextNode(4)} />;
+                  break;
+                case 'surprise':
+                  component = (
+                    <SurpriseSection 
+                      isBlackout={isBlackout}
+                      setIsBlackout={setIsBlackout} 
+                      onReset={handleReset}
+                      onComplete={() => setSurpriseCompleted(true)}
+                    />
+                  );
+                  break;
+                default:
+                  break;
+              }
             }
 
             return (
